@@ -62,10 +62,19 @@ interface HeroBanner {
 // Helper to get storage URL
 const storageUrl = (path: string | null | undefined) => {
     if (!path) return null;
-    if (path.startsWith('http')) return path;
+    if (path.startsWith('http') || path.startsWith('data:') || path.startsWith('blob:')) return path;
+
+    // If it's a local absolute path (starts with / but not /storage), it's likely a frontend asset
+    if (path.startsWith('/') && !path.startsWith('/storage/')) return path;
+
+    let cleanPath = path.startsWith('/') ? path.substring(1) : path;
+    if (cleanPath.startsWith('storage/')) {
+        cleanPath = cleanPath.substring(8);
+    }
+
     const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api';
-    const baseUrl = apiUrl.replace('/api', '');
-    return `${baseUrl}/storage/${path}`;
+    const baseUrl = apiUrl.replace(/\/api$/, '').replace(/\/$/, '');
+    return `${baseUrl}/storage/${cleanPath}`;
 };
 
 // Sub-component for Product Image Carousel to handle Swiper properly
