@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { useReactToPrint } from 'react-to-print';
 import { useZxing } from 'react-zxing';
 import type { KeyboardEvent } from 'react';
@@ -79,18 +79,21 @@ export default function POS() {
         }
     }, [cart, paymentMethod, cashTendered, isCartHydrated]);
 
-    const zxingHints = new Map();
-    zxingHints.set(DecodeHintType.POSSIBLE_FORMATS, [
-        BarcodeFormat.CODE_128,
-        BarcodeFormat.CODE_39,
-        BarcodeFormat.EAN_13,
-        BarcodeFormat.EAN_8,
-        BarcodeFormat.UPC_A,
-        BarcodeFormat.UPC_E,
-        BarcodeFormat.ITF,
-        BarcodeFormat.CODE_93
-    ]);
-    zxingHints.set(DecodeHintType.TRY_HARDER, true);
+    const zxingHints = useMemo(() => {
+        const h = new Map();
+        h.set(DecodeHintType.POSSIBLE_FORMATS, [
+            BarcodeFormat.CODE_128,
+            BarcodeFormat.CODE_39,
+            BarcodeFormat.EAN_13,
+            BarcodeFormat.EAN_8,
+            BarcodeFormat.UPC_A,
+            BarcodeFormat.UPC_E,
+            BarcodeFormat.ITF,
+            BarcodeFormat.CODE_93
+        ]);
+        h.set(DecodeHintType.TRY_HARDER, true);
+        return h;
+    }, []);
 
     const { ref } = useZxing({
         onDecodeResult(result) {
@@ -117,6 +120,9 @@ export default function POS() {
         constraints: {
             video: {
                 facingMode: { ideal: 'environment' },
+                width: { min: 640, ideal: 1280, max: 1920 },
+                height: { min: 480, ideal: 720, max: 1080 },
+                focusMode: { ideal: 'continuous' } as any,
             },
         },
         hints: zxingHints,
