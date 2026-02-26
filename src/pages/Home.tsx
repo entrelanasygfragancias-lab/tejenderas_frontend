@@ -69,7 +69,7 @@ const storageUrl = (path: string | null | undefined) => {
 };
 
 // Sub-component for Product Image Carousel to handle Swiper properly
-const ProductImageCarousel = ({ item, isPromoSection = false, onRedirect }: { item: Product, isPromoSection?: boolean, onRedirect?: (item: Product) => void }) => {
+const ProductImageCarousel = ({ item, isPromoSection = false }: { item: { name: string, images?: string[], image?: string | null }, isPromoSection?: boolean }) => {
     const [swiper, setSwiper] = useState<any>(null);
 
     return (
