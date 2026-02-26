@@ -64,18 +64,27 @@ const storageUrl = (path: string | null | undefined) => {
     if (!path) return null;
     if (path.startsWith('http') || path.startsWith('data:') || path.startsWith('blob:')) return path;
 
-    // If it's a local absolute path (starts with / but not /storage), it's likely a frontend asset
-    if (path.startsWith('/') && !path.startsWith('/storage/')) return path;
+    // Explicitly handle paths that are meant for storage
+    const isStoragePath = path.startsWith('products/') ||
+        path.startsWith('banners/') ||
+        path.startsWith('attribute_values/') ||
+        path.startsWith('storage/') ||
+        path.startsWith('/storage/');
 
-    let cleanPath = path.startsWith('/') ? path.substring(1) : path;
-    if (cleanPath.startsWith('storage/')) {
-        cleanPath = cleanPath.substring(8);
+    if (isStoragePath) {
+        let cleanPath = path.startsWith('/') ? path.substring(1) : path;
+        if (cleanPath.startsWith('storage/')) {
+            cleanPath = cleanPath.substring(8);
+        }
+        const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api';
+        const baseUrl = apiUrl.replace(/\/api$/, '').replace(/\/$/, '');
+        return `${baseUrl}/storage/${cleanPath}`;
     }
 
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api';
-    const baseUrl = apiUrl.replace(/\/api$/, '').replace(/\/$/, '');
-    return `${baseUrl}/storage/${cleanPath}`;
+    // Default: treat as local asset if it doesn't look like storage
+    return path.startsWith('/') ? path : `/${path}`;
 };
+
 
 // Sub-component for Product Image Carousel to handle Swiper properly
 const ProductImageCarousel = ({ item, isPromoSection = false }: { item: { name: string, images?: string[], image?: string | null }, isPromoSection?: boolean }) => {
