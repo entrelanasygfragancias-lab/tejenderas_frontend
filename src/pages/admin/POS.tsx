@@ -80,7 +80,16 @@ export default function POS() {
     }, [cart, paymentMethod, cashTendered, isCartHydrated]);
 
     const zxingHints = new Map();
-    zxingHints.set(DecodeHintType.POSSIBLE_FORMATS, [BarcodeFormat.EAN_13, BarcodeFormat.EAN_8]);
+    zxingHints.set(DecodeHintType.POSSIBLE_FORMATS, [
+        BarcodeFormat.CODE_128,
+        BarcodeFormat.CODE_39,
+        BarcodeFormat.EAN_13,
+        BarcodeFormat.EAN_8,
+        BarcodeFormat.UPC_A,
+        BarcodeFormat.UPC_E,
+        BarcodeFormat.ITF,
+        BarcodeFormat.CODE_93
+    ]);
     zxingHints.set(DecodeHintType.TRY_HARDER, true);
 
     const { ref } = useZxing({
@@ -117,12 +126,6 @@ export default function POS() {
     const handleScannedCode = (code: string) => {
         const normalized = code?.trim();
         if (!normalized) return;
-
-        // EAN-13 is always 13 digits. If it's not, keep scanning and show a hint.
-        if (!/^\d{13}$/.test(normalized)) {
-            setScanError('Acerca o alinea el código. Debe ser un EAN-13 de 13 dígitos.');
-            return;
-        }
 
         setBarcode(normalized);
         setIsScanning(false); // Close scanner after successful scan
@@ -465,7 +468,7 @@ export default function POS() {
                                             <div className="w-64 h-32 border-4 border-red-pink/50 rounded-xl"></div>
                                         </div>
                                     </div>
-                                    <p className="text-center mt-4 text-gray-500 font-bold">Apunta el código a la cámara</p>
+                                    <p className="text-center mt-4 text-gray-500 font-bold">Apunta el código de barras a la cámara</p>
                                 </div>
                             </div>
                         )}
