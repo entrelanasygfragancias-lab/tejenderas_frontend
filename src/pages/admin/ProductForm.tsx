@@ -4,6 +4,7 @@ import Barcode from 'react-barcode';
 import { useReactToPrint } from 'react-to-print';
 import api from '../../api';
 import { AxiosError } from 'axios';
+import { getStorageUrl } from '../../utils/imageUrl';
 import AdminLayout from '../../components/AdminLayout';
 
 const getShapeIcon = (name: string) => {
@@ -118,23 +119,17 @@ export default function ProductForm() {
             setMarkupType(data.markup_type || 'percentage');
 
             if (data.image) {
-                const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api';
-                const baseUrl = apiUrl.replace('/api', '');
-                setMainImagePreview(`${baseUrl}/storage/${data.image}`);
+                setMainImagePreview(getStorageUrl(data.image));
             }
 
             if (data.images && Array.isArray(data.images)) {
-                const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api';
-                const baseUrl = apiUrl.replace('/api', '');
-                setGalleryImagePreviews(data.images.map((img: string) => `${baseUrl}/storage/${img}`));
+                setGalleryImagePreviews(data.images.map((img: string) => getStorageUrl(img)));
             }
 
             if (data.attributes) {
                 setProductAttributes(data.attributes.map((a: any) => a.id));
             }
             if (data.attribute_values) {
-                const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api';
-                const baseUrl = apiUrl.replace('/api', '');
 
                 const loadedValues = data.attribute_values.map((v: any) => ({
                     id: v.id,
@@ -145,7 +140,7 @@ export default function ProductForm() {
                     price: v.pivot.price_delta?.toString() || '0',
                     stock: v.pivot.stock?.toString() || '0',
                     image: v.pivot.image,
-                    imagePreview: v.pivot.image ? `${baseUrl}/storage/${v.pivot.image}` : null
+                    imagePreview: getStorageUrl(v.pivot.image)
                 }));
                 setProductAttributeValues(loadedValues);
             }

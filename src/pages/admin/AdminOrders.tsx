@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import api from '../../api';
 import Logo from '../../components/Logo';
 import AdminLayout from '../../components/AdminLayout';
+import { getStorageUrl } from '../../utils/imageUrl';
 
 interface OrderItem {
     id: number;
@@ -141,7 +142,7 @@ export default function AdminOrders() {
                 ) : selectedStatus !== 'completed' && filteredOrders.length > 0 ? (
                     <div className="w-[95%] md:w-full max-w-6xl grid grid-cols-1 gap-4 md:gap-12 mx-auto">
                         {filteredOrders.map((order) => (
-                            <div key={order.id} style={{padding: '32px'}} className="bg-white rounded-md shadow-lg md:shadow-xl border-2 md:border-4 border-graphite transition-all duration-300">
+                            <div key={order.id} style={{ padding: '32px' }} className="bg-white rounded-md shadow-lg md:shadow-xl border-2 md:border-4 border-graphite transition-all duration-300">
                                 <div className="rounded-md overflow-hidden border border-gray-200">
                                     {/* Header */}
                                     <div className="bg-white px-6 py-5 md:px-8 md:py-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 md:gap-6 border-b-2 border-gray-100">
@@ -171,144 +172,144 @@ export default function AdminOrders() {
                                         </div>
                                     </div>
 
-                                {/* Content */}
-                                <div className="px-6 py-6 md:px-8 md:py-8 grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-12">
-                                    {/* Customer Info */}
-                                    <div className="lg:col-span-1 space-y-6">
-                                        <h4 className="text-xl md:text-base font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 pb-2 pr-4">Información del Cliente</h4>
-                                        <div className="space-y-2">
-                                            <div className="flex items-start gap-3">
-                                                <div className="w-8 h-8 md:w-10 md:h-10 bg-gray-100 rounded-full flex items-center justify-center text-gray-400 font-bold shrink-0">
-                                                    {order.user.name.charAt(0)}
+                                    {/* Content */}
+                                    <div className="px-6 py-6 md:px-8 md:py-8 grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-12">
+                                        {/* Customer Info */}
+                                        <div className="lg:col-span-1 space-y-6">
+                                            <h4 className="text-xl md:text-base font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 pb-2 pr-4">Información del Cliente</h4>
+                                            <div className="space-y-2">
+                                                <div className="flex items-start gap-3">
+                                                    <div className="w-8 h-8 md:w-10 md:h-10 bg-gray-100 rounded-full flex items-center justify-center text-gray-400 font-bold shrink-0">
+                                                        {order.user.name.charAt(0)}
+                                                    </div>
+                                                    <div>
+                                                        <p className="font-bold text-graphite text-base md:text-lg">{order.user.name}</p>
+                                                        <p className="text-sm md:text-lg text-gray-500 break-all">{order.user.email}</p>
+                                                    </div>
                                                 </div>
-                                                <div>
-                                                    <p className="font-bold text-graphite text-base md:text-lg">{order.user.name}</p>
-                                                    <p className="text-sm md:text-lg text-gray-500 break-all">{order.user.email}</p>
+                                                <div className="bg-gray-50 p-3 md:p-6 rounded-2xl border border-gray-100 text-sm md:text-lg space-y-4">
+                                                    <div className="flex items-center gap-2 text-gray-600">
+                                                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
+                                                        <span className="font-medium">{order.phone}</span>
+                                                    </div>
+                                                    <div className="flex items-start gap-2 text-gray-600">
+                                                        <svg className="w-5 h-5 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                                                        <span className="font-medium">
+                                                            {order.shipping_address}<br />
+                                                            {order.city}, {order.department}
+                                                        </span>
+                                                    </div>
                                                 </div>
                                             </div>
-                                            <div className="bg-gray-50 p-3 md:p-6 rounded-2xl border border-gray-100 text-sm md:text-lg space-y-4">
-                                                <div className="flex items-center gap-2 text-gray-600">
-                                                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
-                                                    <span className="font-medium">{order.phone}</span>
+
+                                            {order.shipping_date && (
+                                                <div className="bg-blue-50 border-2 border-blue-200 rounded-2xl p-3 md:p-4">
+                                                    <p className="text-xs font-black uppercase tracking-widest text-blue-600">Fecha de envío</p>
+                                                    <p className="text-base md:text-lg font-black text-graphite mt-1">
+                                                        {new Date(order.shipping_date).toLocaleDateString()}
+                                                    </p>
                                                 </div>
-                                                <div className="flex items-start gap-2 text-gray-600">
-                                                    <svg className="w-5 h-5 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-                                                    <span className="font-medium">
-                                                        {order.shipping_address}<br />
-                                                        {order.city}, {order.department}
-                                                    </span>
+                                            )}
+
+                                            {order.payment_proof && (
+                                                <div className="pt-4">
+                                                    <h4 className="text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 pb-2 mb-3 pr-4">Comprobante de Pago</h4>
+                                                    <a
+                                                        href={getStorageUrl(order.payment_proof) || '#'}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="block w-full bg-pink-50 hover:bg-pink-100 text-pink-hot font-black text-center py-2 md:py-3 rounded-xl border border-pink-200 transition-colors uppercase tracking-wide text-xs"
+                                                    >
+                                                        Ver Imagen
+                                                    </a>
+                                                    {order.status === 'pending' && (
+                                                        <div className="mt-3 space-y-2">
+                                                            <label className="block text-[11px] font-black uppercase tracking-widest text-gray-400">Fecha de envío</label>
+                                                            <input
+                                                                type="date"
+                                                                value={shippingDates[order.id] ?? ''}
+                                                                onChange={(event) =>
+                                                                    setShippingDates((prev) => ({
+                                                                        ...prev,
+                                                                        [order.id]: event.target.value,
+                                                                    }))
+                                                                }
+                                                                className="w-full rounded-xl border-2 border-gray-200 px-3 py-2 text-xs font-bold text-graphite focus:border-blue-500 focus:outline-none"
+                                                            />
+                                                        </div>
+                                                    )}
+                                                    {order.shipping_date && (
+                                                        <p className="mt-3 text-xs font-bold text-gray-500 uppercase tracking-widest">
+                                                            Envío: {new Date(order.shipping_date).toLocaleDateString()}
+                                                        </p>
+                                                    )}
+                                                    {order.status === 'pending' && (
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleConfirmPayment(order.id)}
+                                                            disabled={updatingOrderId === order.id}
+                                                            className="mt-3 w-full bg-blue-600 hover:bg-blue-700 text-white font-black text-center py-2 md:py-3 rounded-xl border-2 border-graphite transition-colors uppercase tracking-wide text-xs disabled:opacity-60 disabled:cursor-not-allowed"
+                                                        >
+                                                            {updatingOrderId === order.id ? 'Confirmando...' : 'Confirmar pago'}
+                                                        </button>
+                                                    )}
+                                                    {order.status === 'confirmed' && (
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleMarkCompleted(order.id)}
+                                                            disabled={updatingOrderId === order.id}
+                                                            className="mt-3 w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black text-center py-2 md:py-3 rounded-xl border-2 border-graphite transition-colors uppercase tracking-wide text-xs disabled:opacity-60 disabled:cursor-not-allowed"
+                                                        >
+                                                            {updatingOrderId === order.id ? 'Actualizando...' : 'Marcar como entregado'}
+                                                        </button>
+                                                    )}
                                                 </div>
-                                            </div>
+                                            )}
                                         </div>
 
-                                        {order.shipping_date && (
-                                            <div className="bg-blue-50 border-2 border-blue-200 rounded-2xl p-3 md:p-4">
-                                                <p className="text-xs font-black uppercase tracking-widest text-blue-600">Fecha de envío</p>
-                                                <p className="text-base md:text-lg font-black text-graphite mt-1">
-                                                    {new Date(order.shipping_date).toLocaleDateString()}
-                                                </p>
-                                            </div>
-                                        )}
-
-                                        {order.payment_proof && (
-                                            <div className="pt-4">
-                                                <h4 className="text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 pb-2 mb-3 pr-4">Comprobante de Pago</h4>
-                                                <a
-                                                    href={`${(import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api').replace('/api', '')}/storage/${order.payment_proof}`}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="block w-full bg-pink-50 hover:bg-pink-100 text-pink-hot font-black text-center py-2 md:py-3 rounded-xl border border-pink-200 transition-colors uppercase tracking-wide text-xs"
-                                                >
-                                                    Ver Imagen
-                                                </a>
-                                                {order.status === 'pending' && (
-                                                    <div className="mt-3 space-y-2">
-                                                        <label className="block text-[11px] font-black uppercase tracking-widest text-gray-400">Fecha de envío</label>
-                                                        <input
-                                                            type="date"
-                                                            value={shippingDates[order.id] ?? ''}
-                                                            onChange={(event) =>
-                                                                setShippingDates((prev) => ({
-                                                                    ...prev,
-                                                                    [order.id]: event.target.value,
-                                                                }))
-                                                            }
-                                                            className="w-full rounded-xl border-2 border-gray-200 px-3 py-2 text-xs font-bold text-graphite focus:border-blue-500 focus:outline-none"
-                                                        />
-                                                    </div>
-                                                )}
-                                                {order.shipping_date && (
-                                                    <p className="mt-3 text-xs font-bold text-gray-500 uppercase tracking-widest">
-                                                        Envío: {new Date(order.shipping_date).toLocaleDateString()}
-                                                    </p>
-                                                )}
-                                                {order.status === 'pending' && (
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => handleConfirmPayment(order.id)}
-                                                        disabled={updatingOrderId === order.id}
-                                                        className="mt-3 w-full bg-blue-600 hover:bg-blue-700 text-white font-black text-center py-2 md:py-3 rounded-xl border-2 border-graphite transition-colors uppercase tracking-wide text-xs disabled:opacity-60 disabled:cursor-not-allowed"
-                                                    >
-                                                        {updatingOrderId === order.id ? 'Confirmando...' : 'Confirmar pago'}
-                                                    </button>
-                                                )}
-                                                {order.status === 'confirmed' && (
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => handleMarkCompleted(order.id)}
-                                                        disabled={updatingOrderId === order.id}
-                                                        className="mt-3 w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black text-center py-2 md:py-3 rounded-xl border-2 border-graphite transition-colors uppercase tracking-wide text-xs disabled:opacity-60 disabled:cursor-not-allowed"
-                                                    >
-                                                        {updatingOrderId === order.id ? 'Actualizando...' : 'Marcar como entregado'}
-                                                    </button>
-                                                )}
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    {/* Items Table */}
-                                    <div className="lg:col-span-2">
-                                        <h4 className="text-base font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 pb-2 mb-4 pr-4">Detalle del Pedido</h4>
-                                        <div className="overflow-x-auto -mx-3 md:mx-0 px-3 md:px-0">
-                                            <table className="w-full min-w-[320px] md:min-w-[500px]">
-                                                <thead>
-                                                    <tr className="text-left text-sm md:text-base text-gray-400 font-black uppercase tracking-widest">
-                                                        <th className="pb-3 w-[40%] md:w-auto">Producto</th>
-                                                        <th className="pb-3 text-center">Cant.</th>
-                                                        <th className="pb-3 text-right">Precio</th>
-                                                        <th className="pb-3 text-right">Total</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody className="divide-y divide-gray-50">
-                                                    {order.items.map((item) => (
-                                                        <tr key={item.id} className="text-base md:text-lg">
-                                                            <td className="py-3 md:py-5 font-bold text-graphite max-w-[140px] md:max-w-none truncate">{item.product?.name || item.product_name}</td>
-                                                            <td className="py-3 md:py-5 text-center font-medium text-gray-500">{item.quantity}</td>
-                                                            <td className="py-3 md:py-5 text-right font-medium text-gray-500 whitespace-nowrap">${parseFloat(item.price).toLocaleString()}</td>
-                                                            <td className="py-3 md:py-5 text-right font-black text-graphite whitespace-nowrap">${(parseFloat(item.price) * item.quantity).toLocaleString()}</td>
+                                        {/* Items Table */}
+                                        <div className="lg:col-span-2">
+                                            <h4 className="text-base font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 pb-2 mb-4 pr-4">Detalle del Pedido</h4>
+                                            <div className="overflow-x-auto -mx-3 md:mx-0 px-3 md:px-0">
+                                                <table className="w-full min-w-[320px] md:min-w-[500px]">
+                                                    <thead>
+                                                        <tr className="text-left text-sm md:text-base text-gray-400 font-black uppercase tracking-widest">
+                                                            <th className="pb-3 w-[40%] md:w-auto">Producto</th>
+                                                            <th className="pb-3 text-center">Cant.</th>
+                                                            <th className="pb-3 text-right">Precio</th>
+                                                            <th className="pb-3 text-right">Total</th>
                                                         </tr>
-                                                    ))}
-                                                </tbody>
-                                                <tfoot className="border-t-2 border-gray-100">
-                                                    <tr>
-                                                        <td colSpan={3} className="pt-4 text-right text-xs md:text-base font-bold uppercase tracking-widest text-gray-400">Subtotal</td>
-                                                        <td className="pt-4 text-right font-bold text-gray-600 text-sm md:text-base whitespace-nowrap">${(parseFloat(order.total) - parseFloat(order.shipping_cost)).toLocaleString()}</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td colSpan={3} className="pt-2 text-right text-xs md:text-base font-bold uppercase tracking-widest text-gray-400">Envío</td>
-                                                        <td className="pt-2 text-right font-bold text-gray-600 text-sm md:text-base whitespace-nowrap">${parseFloat(order.shipping_cost).toLocaleString()}</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td colSpan={3} className="pt-4 text-right text-sm md:text-base font-black uppercase tracking-widest text-graphite">Total</td>
-                                                        <td className="pt-4 text-right font-black text-teal text-xl md:text-2xl whitespace-nowrap">${parseFloat(order.total).toLocaleString()}</td>
-                                                    </tr>
-                                                </tfoot>
-                                            </table>
+                                                    </thead>
+                                                    <tbody className="divide-y divide-gray-50">
+                                                        {order.items.map((item) => (
+                                                            <tr key={item.id} className="text-base md:text-lg">
+                                                                <td className="py-3 md:py-5 font-bold text-graphite max-w-[140px] md:max-w-none truncate">{item.product?.name || item.product_name}</td>
+                                                                <td className="py-3 md:py-5 text-center font-medium text-gray-500">{item.quantity}</td>
+                                                                <td className="py-3 md:py-5 text-right font-medium text-gray-500 whitespace-nowrap">${parseFloat(item.price).toLocaleString()}</td>
+                                                                <td className="py-3 md:py-5 text-right font-black text-graphite whitespace-nowrap">${(parseFloat(item.price) * item.quantity).toLocaleString()}</td>
+                                                            </tr>
+                                                        ))}
+                                                    </tbody>
+                                                    <tfoot className="border-t-2 border-gray-100">
+                                                        <tr>
+                                                            <td colSpan={3} className="pt-4 text-right text-xs md:text-base font-bold uppercase tracking-widest text-gray-400">Subtotal</td>
+                                                            <td className="pt-4 text-right font-bold text-gray-600 text-sm md:text-base whitespace-nowrap">${(parseFloat(order.total) - parseFloat(order.shipping_cost)).toLocaleString()}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td colSpan={3} className="pt-2 text-right text-xs md:text-base font-bold uppercase tracking-widest text-gray-400">Envío</td>
+                                                            <td className="pt-2 text-right font-bold text-gray-600 text-sm md:text-base whitespace-nowrap">${parseFloat(order.shipping_cost).toLocaleString()}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td colSpan={3} className="pt-4 text-right text-sm md:text-base font-black uppercase tracking-widest text-graphite">Total</td>
+                                                            <td className="pt-4 text-right font-black text-teal text-xl md:text-2xl whitespace-nowrap">${parseFloat(order.total).toLocaleString()}</td>
+                                                        </tr>
+                                                    </tfoot>
+                                                </table>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
                         ))}
                     </div>
                 ) : selectedStatus !== 'completed' ? (
@@ -324,7 +325,7 @@ export default function AdminOrders() {
                     <div className="h-8 md:h-12"></div>
                 )}
                 <div className="w-[95%] md:w-full max-w-6xl mt-16 md:mt-20 mb-10 md:mb-12">
-                    <div style={{padding: '32px'}} className="bg-white rounded-md shadow-lg md:shadow-xl border-2 md:border-4 border-graphite">
+                    <div style={{ padding: '32px' }} className="bg-white rounded-md shadow-lg md:shadow-xl border-2 md:border-4 border-graphite">
                         <div className="rounded-md overflow-hidden border border-gray-200 pb-8">
                             <div className="px-6 py-5 md:px-8 md:py-6 border-b-2 border-gray-100 bg-white flex flex-col md:flex-row md:items-center md:justify-between gap-3">
                                 <div>
@@ -400,7 +401,7 @@ export default function AdminOrders() {
                 return (
                     <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/60 px-3 md:px-6 py-6 md:py-10">
                         <div className="absolute inset-0" onClick={() => setSelectedHistoryOrder(null)}></div>
-                        <div className="relative bg-white rounded-md shadow-2xl border-4 border-graphite w-full max-w-3xl md:mx-auto max-h-[85vh]" style={{padding: '32px'}}>
+                        <div className="relative bg-white rounded-md shadow-2xl border-4 border-graphite w-full max-w-3xl md:mx-auto max-h-[85vh]" style={{ padding: '32px' }}>
                             <div className="rounded-md overflow-hidden border border-gray-200">
                                 <div className="bg-graphite text-white p-4 md:p-5 flex justify-between items-start">
                                     <div className="flex items-center gap-4">

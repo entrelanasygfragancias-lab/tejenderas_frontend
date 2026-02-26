@@ -1,5 +1,6 @@
 import { useCart } from '../context/CartContext';
 import { useNavigate } from 'react-router-dom';
+import { getStorageUrl } from '../utils/imageUrl';
 
 interface CartDrawerProps {
     isOpen: boolean;
@@ -50,7 +51,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                                 <div className="w-20 h-20 bg-gray-100 rounded-xl overflow-hidden border-2 border-gray-200">
                                     {item.product.image ? (
                                         <img
-                                            src={`${(import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api').replace('/api', '')}/storage/${item.product.image}`}
+                                            src={getStorageUrl(item.product.image) || ''}
                                             alt={item.product.name}
                                             className="w-full h-full object-cover"
                                         />

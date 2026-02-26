@@ -4,6 +4,7 @@ import api from '../api';
 import { formatCurrency } from '../utils/format';
 import { useCart } from '../context/CartContext';
 import toast from 'react-hot-toast';
+import { getStorageUrl } from '../utils/imageUrl';
 
 interface AttributeValue {
   id: number;
@@ -114,15 +115,11 @@ export default function ProductDetail() {
     );
   }
 
-  const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api';
-  const baseUrl = apiUrl.replace('/api', '');
-  const imageUrl = product.image ? `${baseUrl}/storage/${product.image}` : null;
-
-  // Find if any selected value has an image
+  const imageUrl = getStorageUrl(product.image);
   const selectedVariantImage = Object.values(selected).reduce<string | null>((acc, valId) => {
     if (acc) return acc;
     const val = product.attribute_values.find(v => v.id === valId);
-    return val?.image ? `${baseUrl}/storage/${val.image}` : null;
+    return getStorageUrl(val?.image);
   }, null);
 
   const displayImage = selectedVariantImage || imageUrl;

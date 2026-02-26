@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import Barcode from 'react-barcode';
 import { useReactToPrint } from 'react-to-print';
 import api from '../../api';
+import { getStorageUrl } from '../../utils/imageUrl';
 import AdminLayout from '../../components/AdminLayout';
 
 interface DbSubcategory {
@@ -433,7 +434,7 @@ export default function ProductList() {
                                                         <div className="w-12 h-12 rounded-lg bg-gray-100 border border-gray-200 flex items-center justify-center overflow-hidden">
                                                             {item.image ? (
                                                                 <img
-                                                                    src={`${(import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api').replace('/api', '')}/storage/${item.image}`}
+                                                                    src={getStorageUrl(item.image) || ''}
                                                                     alt={item.name}
                                                                     className="w-full h-full object-cover"
                                                                 />

@@ -7,6 +7,7 @@ import toast from 'react-hot-toast';
 
 import api from '../api';
 import { useCart } from '../context/CartContext';
+import { getStorageUrl } from '../utils/imageUrl';
 import CartDrawer from '../components/CartDrawer';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -59,31 +60,8 @@ interface HeroBanner {
     textClass: string;
 }
 
-// Helper to get storage URL
-const storageUrl = (path: string | null | undefined) => {
-    if (!path) return null;
-    if (path.startsWith('http') || path.startsWith('data:') || path.startsWith('blob:')) return path;
-
-    // Explicitly handle paths that are meant for storage
-    const isStoragePath = path.startsWith('products/') ||
-        path.startsWith('banners/') ||
-        path.startsWith('attribute_values/') ||
-        path.startsWith('storage/') ||
-        path.startsWith('/storage/');
-
-    if (isStoragePath) {
-        let cleanPath = path.startsWith('/') ? path.substring(1) : path;
-        if (cleanPath.startsWith('storage/')) {
-            cleanPath = cleanPath.substring(8);
-        }
-        const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api';
-        const baseUrl = apiUrl.replace(/\/api$/, '').replace(/\/$/, '');
-        return `${baseUrl}/storage/${cleanPath}`;
-    }
-
-    // Default: treat as local asset if it doesn't look like storage
-    return path.startsWith('/') ? path : `/${path}`;
-};
+// Using centralized getStorageUrl for all image paths
+const storageUrl = getStorageUrl;
 
 
 // Sub-component for Product Image Carousel to handle Swiper properly
