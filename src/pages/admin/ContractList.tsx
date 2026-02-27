@@ -355,9 +355,8 @@ export default function ContractList() {
 
     return (
         <AdminLayout
-            title="Contratos"
-            subtitle="Uniformes corporativos"
-            titleWrapperClassName="translate-x-6 md:translate-x-12"
+            title="Gestión de Contratos"
+            subtitle="Seguimiento de uniformes corporativos y pedidos especiales"
             actions={
                 <button
                     onClick={() => openModal()}
@@ -371,7 +370,7 @@ export default function ContractList() {
             }
         >
             <div className="flex flex-col items-center w-full">
-                <div className="h-6 md:h-8"></div>
+                <div className="h-10 md:h-16"></div>
                 {error && (
                     <div className="mb-8 w-[90%] md:w-full max-w-6xl mx-auto bg-red-pink/10 border-l-8 border-red-pink p-6 rounded-r-xl">
                         <div className="flex items-center gap-4">
@@ -1250,6 +1249,16 @@ export default function ContractList() {
                     </div>
                 </div>
             )}
+            {/* Integrated Footer Area */}
+            <div className="pt-12 md:pt-96 pb-24 md:pb-48 text-center space-y-8 md:space-y-12 w-full">
+                <div className="flex justify-center gap-4 opacity-10">
+                    <div className="w-12 h-1.5 bg-pink-hot rounded-full"></div>
+                    <div className="w-12 h-1.5 bg-teal rounded-full"></div>
+                </div>
+                <p className="text-gray-400 text-[10px] sm:text-[14px] font-black uppercase tracking-[0.4em] md:tracking-[0.8em] max-w-5xl mx-auto leading-relaxed opacity-40 italic">
+                    SISTEMA CENTRAL DE GESTIÓN VISUAL • VERSIÓN 2.5
+                </p>
+            </div>
         </AdminLayout>
     );
 }

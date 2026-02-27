@@ -281,10 +281,10 @@ export default function ProductForm() {
 
     return (
         <AdminLayout>
-            <div className="min-h-screen bg-gray-50/50 pb-24 px-6 md:px-12 flex justify-center">
-                <div className="w-full max-w-5xl">
+            <div className="min-h-screen bg-gray-50/50 pb-12 px-2 sm:px-6 md:px-12 flex flex-col items-center">
+                <div className="w-full max-w-5xl flex flex-col">
                     {/* Header Section */}
-                    <div className="pt-10 md:pt-20 mb-8 md:mb-12">
+                    <div className="pt-20 md:pt-24 mb-8 md:mb-12">
                         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 md:gap-8">
                             <div className="space-y-4">
                                 <Link
@@ -299,10 +299,10 @@ export default function ProductForm() {
                                     Volver al Inventario
                                 </Link>
                                 <div>
-                                    <h1 className="text-4xl md:text-6xl font-black text-graphite tracking-tight leading-none mb-4">
+                                    <h1 className="text-3xl sm:text-4xl md:text-6xl font-black text-graphite tracking-tight leading-none mb-4">
                                         {isEditing ? 'Editar Producto' : 'Nuevo Producto'}
                                     </h1>
-                                    <p className="text-gray-500 font-bold text-base uppercase tracking-widest max-w-xl">
+                                    <p className="text-gray-500 font-bold text-xs sm:text-base uppercase tracking-widest max-w-xl">
                                         {isEditing ? 'Gestión avanzada de existencias y parámetros comerciales' : 'Añade un nuevo tesoro a tu catálogo digital'}
                                     </p>
                                 </div>
@@ -340,7 +340,7 @@ export default function ProductForm() {
                             {/* LEFT COLUMN: Main Info */}
                             <div className="lg:col-span-8 space-y-12">
                                 {/* General Info Card */}
-                                <section className="bg-white rounded-[3.0rem] border border-gray-100 shadow-2xl shadow-gray-200/40 p-12 md:p-16 space-y-12 transition-all hover:shadow-teal/5">
+                                <section className="bg-white rounded-[2rem] md:rounded-[3.0rem] border border-gray-100 shadow-2xl shadow-gray-200/40 p-6 sm:p-8 md:p-16 space-y-8 md:space-y-12 transition-all hover:shadow-teal/5">
                                     <div className="flex items-center gap-5 md:gap-6">
                                         <div className="w-12 h-16 md:w-14 md:h-20 bg-pink-hot rounded-[1.25rem] flex items-center justify-center text-white text-2xl md:text-3xl shadow-xl shadow-pink-500/20 shrink-0">📝</div>
                                         <div>
@@ -412,11 +412,11 @@ export default function ProductForm() {
                                 </section>
 
                                 {/* Categorization & Barcode Card */}
-                                <section className="bg-white rounded-[1rem] border border-gray-100 shadow-2xl shadow-gray-200/40 p-12 md:p-16 space-y-12 transition-all hover:shadow-teal/5">
+                                <section className="bg-white rounded-[1.5rem] md:rounded-[2.5rem] border border-gray-100 shadow-2xl shadow-gray-200/40 p-6 sm:p-8 md:p-16 space-y-8 md:space-y-12 transition-all hover:shadow-teal/5">
                                     <div className="flex items-center gap-5 md:gap-8">
                                         <div className="w-12 h-16 md:w-14 md:h-20 bg-teal rounded-[1.25rem] flex items-center justify-center text-white text-2xl md:text-3xl shadow-xl shadow-teal-500/20 shrink-0">🏷️</div>
-                                        <div className="flex flex-col gap-2 md:gap-3">
-                                            <h2 className="text-3xl md:text-5xl font-black text-graphite tracking-tight uppercase">Categorización</h2>
+                                        <div className="flex flex-col gap-1 md:gap-3">
+                                            <h2 className="text-2xl sm:text-3xl md:text-5xl font-black text-graphite tracking-tight uppercase">Categorización</h2>
                                             <p className="text-gray-500 font-bold text-[10px] md:text-xs uppercase tracking-widest ml-1">Ubicación y codificación del producto</p>
                                         </div>
                                     </div>
@@ -534,7 +534,7 @@ export default function ProductForm() {
 
                                 {/* Prices & Stock Card */}
                                 {(isPromo || isCombo) && (
-                                    <section className="bg-white rounded-[2.5rem] border border-gray-100 shadow-2xl shadow-gray-200/40 p-12 md:p-16 space-y-12 transition-all hover:shadow-indigo-500/5">
+                                    <section className="bg-white rounded-[1.5rem] md:rounded-[2.5rem] border border-gray-100 shadow-2xl shadow-gray-200/40 p-6 sm:p-8 md:p-16 space-y-8 md:space-y-12 transition-all hover:shadow-indigo-500/5">
                                         <div className="flex items-center gap-5 md:gap-6">
                                             <div className="w-12 h-12 md:w-14 md:h-14 bg-indigo-600 rounded-[1.25rem] flex items-center justify-center text-white text-2xl md:text-3xl shadow-xl shadow-indigo-600/20 shrink-0">💰</div>
                                             <div>
@@ -648,7 +648,7 @@ export default function ProductForm() {
                             {/* RIGHT COLUMN: Media */}
                             <div className="lg:col-span-4 space-y-12">
                                 {/* Images Card */}
-                                <section className="bg-white rounded-[2.5rem] border border-gray-100 shadow-2xl shadow-gray-200/40 p-10 space-y-12 sticky top-12 transition-all hover:shadow-teal/5">
+                                <section className="bg-white rounded-[1.5rem] md:rounded-[2.5rem] border border-gray-100 shadow-2xl shadow-gray-200/40 p-6 sm:p-8 md:p-10 space-y-8 md:space-y-12 sticky top-12 transition-all hover:shadow-teal/5">
                                     <div className="flex items-center gap-5 md:gap-6">
                                         <div className="w-12 h-16 md:w-14 md:h-20 bg-teal rounded-[1.25rem] flex items-center justify-center text-white text-2xl md:text-3xl shadow-xl shadow-teal-500/20 shrink-0">📸</div>
                                         <div>
@@ -744,23 +744,23 @@ export default function ProductForm() {
                             {/* Variants / Attributes Section */}
                             {!isPromo && !isCombo && (
                                 <section className="pt-20 space-y-14 animate-in fade-in slide-in-from-bottom-8 duration-700 col-span-1 lg:col-span-12">
-                                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 border-b border-gray-100 pb-10">
-                                        <div className="flex items-center gap-5 md:gap-6">
-                                            <div className="w-12 h-12 md:w-16 md:h-16 bg-gradient-to-br from-pink-500 to-rose-500 rounded-2xl md:rounded-3xl flex items-center justify-center text-2xl md:text-3xl shadow-2xl shadow-rose-500/20 shrink-0 text-white">🌈</div>
+                                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 md:gap-8 border-b border-gray-100 pb-8 md:pb-10">
+                                        <div className="flex items-center gap-4 md:gap-6">
+                                            <div className="w-12 h-12 md:w-16 md:h-16 bg-gradient-to-br from-pink-500 to-rose-500 rounded-xl md:rounded-3xl flex items-center justify-center text-xl md:text-3xl shadow-2xl shadow-rose-500/20 shrink-0 text-white">🌈</div>
                                             <div>
-                                                <h3 className="text-3xl md:text-5xl font-black text-graphite tracking-tight uppercase">Dimensiones y Variantes</h3>
-                                                <p className="text-[10px] md:text-sm font-bold text-gray-500 uppercase tracking-[0.3em] mt-2 md:mt-3 ml-1">Configura tallas, colores o atributos específicos</p>
+                                                <h3 className="text-2xl md:text-5xl font-black text-graphite tracking-tight uppercase leading-tight">Dimensiones y Variantes</h3>
+                                                <p className="text-[10px] md:text-sm font-bold text-gray-500 uppercase tracking-widest md:tracking-[0.3em] mt-1 md:mt-3 ml-1">Configura tallas, colores o atributos específicos</p>
                                             </div>
                                         </div>
                                     </div>
 
                                     {/* Step 1: Attribute Types */}
-                                    <div className="bg-white rounded-[1rem] border-2 border-graphite shadow-[12px_12px_0px_0px_#F2F2F2] p-16 md:p-24 space-y-16">
-                                        <div className="flex items-center gap-8">
-                                            <span className="w-16 h-16 bg-graphite text-white rounded-3xl flex items-center justify-center font-black text-2xl shadow-xl shadow-graphite/20">01</span>
-                                            <h4 className="text-3xl font-black text-graphite uppercase tracking-[0.2em]">Seleccionar Dimensiones</h4>
+                                    <div className="bg-white rounded-[1.5rem] md:rounded-[1rem] border-2 border-graphite shadow-[8px_8px_0px_0px_#F2F2F2] md:shadow-[12px_12px_0px_0px_#F2F2F2] p-6 md:p-24 space-y-8 md:space-y-16">
+                                        <div className="flex items-center gap-4 md:gap-8">
+                                            <span className="w-10 h-10 md:w-16 md:h-16 bg-graphite text-white rounded-xl md:rounded-3xl flex items-center justify-center font-black text-lg md:text-2xl shadow-xl shadow-graphite/20">01</span>
+                                            <h4 className="text-xl md:text-3xl font-black text-graphite uppercase tracking-widest md:tracking-[0.2em]">Seleccionar Dimensiones</h4>
                                         </div>
-                                        <div className="flex flex-wrap gap-4">
+                                        <div className="flex flex-wrap gap-2 md:gap-4">
                                             {allAttributes.map(attr => (
                                                 <button
                                                     key={attr.id}
@@ -774,8 +774,8 @@ export default function ProductForm() {
                                                             setProductAttributes(prev => [...prev, attr.id]);
                                                         }
                                                     }}
-                                                    className={`px-12 py-8 rounded-[1.5rem] font-black uppercase tracking-widest text-base transition-all border-2 ${productAttributes.includes(attr.id)
-                                                        ? 'bg-pink-hot border-graphite text-white shadow-[8px_8px_0px_0px_#333] -translate-y-2'
+                                                    className={`px-4 py-2.5 md:px-12 md:py-8 rounded-xl md:rounded-[1.5rem] font-black uppercase tracking-widest text-xs md:text-base transition-all border-2 ${productAttributes.includes(attr.id)
+                                                        ? 'bg-pink-hot border-graphite text-white shadow-md md:shadow-[8px_8px_0px_0px_#333] -translate-y-1 md:-translate-y-2'
                                                         : 'bg-gray-50 border-gray-100 text-gray-500 hover:border-pink-hot/30 hover:text-pink-hot'}`}
                                                 >
                                                     {productAttributes.includes(attr.id) ? '✓ ' : ''}{attr.name}
@@ -803,18 +803,18 @@ export default function ProductForm() {
                                                 if (!attr) return null;
                                                 return (
                                                     <div key={attr.id} className="bg-white rounded-1xl border border-gray-100 shadow-xl shadow-gray-200/40 overflow-hidden transition-all hover:shadow-2xl hover:shadow-gray-200/60">
-                                                        <div className="bg-graphite p-8 md:px-20 flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden">
+                                                        <div className="bg-graphite p-6 md:px-20 flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6 relative overflow-hidden">
                                                             <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 -mr-32 -mt-32 rounded-full blur-3xl" />
-                                                            <div className="flex items-center gap-5 relative z-10">
-                                                                <h5 className="text-white font-black uppercase tracking-[0.3em] text-base">{attr.name}</h5>
-                                                                <span className="px-5 py-2 bg-white/10 rounded-full text-[10px] font-black text-white/50 uppercase tracking-widest">{attr.values.length} Disponibles</span>
+                                                            <div className="flex items-center gap-4 md:gap-5 relative z-10">
+                                                                <h5 className="text-white font-black uppercase tracking-widest md:tracking-[0.3em] text-sm md:text-base">{attr.name}</h5>
+                                                                <span className="px-3 md:px-5 py-1 md:py-2 bg-white/10 rounded-full text-[9px] md:text-[10px] font-black text-white/50 uppercase tracking-widest">{attr.values.length} Disponibles</span>
                                                             </div>
-                                                            <div className="relative group relative z-10">
+                                                            <div className="relative group z-10 w-full md:w-auto">
                                                                 <input
                                                                     id={`quick-add-${attr.id}`}
                                                                     type="text"
-                                                                    placeholder={`Agregar ${attr.name.toLowerCase()} rápidamente...`}
-                                                                    className="pl-10 md:pl-12 pr-16 md:pr-20 py-6 md:py-8 bg-white/5 border border-white/10 rounded-[2rem] text-white placeholder-white/20 text-base md:text-lg font-bold outline-none focus:bg-white/10 focus:border-teal/50 transition-all w-full md:w-[500px]"
+                                                                    placeholder={`Agregar ${attr.name.toLowerCase()}...`}
+                                                                    className="pl-10 md:pl-12 pr-12 md:pr-20 py-4 md:py-8 bg-white/5 border border-white/10 rounded-xl md:rounded-[2rem] text-white placeholder-white/20 text-xs md:text-lg font-bold outline-none focus:bg-white/10 focus:border-teal/50 transition-all w-full md:w-[500px]"
                                                                     onKeyDown={async (e) => {
                                                                         if (e.key === 'Enter') {
                                                                             e.preventDefault();
@@ -828,14 +828,14 @@ export default function ProductForm() {
                                                                         }
                                                                     }}
                                                                 />
-                                                                <div className="absolute right-5 top-1/2 -translate-y-1/2 text-white/10 group-focus-within:text-teal transition-colors">
-                                                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M12 4v16m8-8H4" /></svg>
+                                                                <div className="absolute right-4 md:right-5 top-1/2 -translate-y-1/2 text-white/10 group-focus-within:text-teal transition-colors">
+                                                                    <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M12 4v16m8-8H4" /></svg>
                                                                 </div>
                                                             </div>
                                                         </div>
 
-                                                        <div className="p-12 md:p-14 bg-[#FDFDFD]">
-                                                            <div className="flex flex-wrap gap-3">
+                                                        <div className="p-6 md:p-14 bg-[#FDFDFD]">
+                                                            <div className="flex flex-wrap gap-2 md:gap-3">
                                                                 {attr.values.map((val: any) => {
                                                                     const config = productAttributeValues.find(v => v.id === val.id);
                                                                     const isActive = !!config;
@@ -850,11 +850,11 @@ export default function ProductForm() {
                                                                                     setConfiguringValue({ id: val.id, name: val.name, basePrice: '0', markup: '30', markupType: 'percentage', price: '0', stock: '0' });
                                                                                 }
                                                                             }}
-                                                                            className={`px-16 py-9 rounded-[2rem] border-2 transition-all font-black uppercase text-base tracking-[0.2em] relative overflow-hidden group/btn ${isActive
-                                                                                ? 'bg-teal border-transparent text-white shadow-xl shadow-teal-500/30 -translate-y-2'
-                                                                                : 'bg-white border-gray-100 text-gray-500 hover:border-teal/50 hover:text-teal hover:shadow-xl hover:-translate-y-2'}`}
+                                                                            className={`px-5 py-2.5 md:px-16 md:py-9 rounded-xl md:rounded-[2rem] border-2 transition-all font-black uppercase text-xs md:text-base tracking-widest md:tracking-[0.2em] relative overflow-hidden group/btn ${isActive
+                                                                                ? 'bg-teal border-transparent text-white shadow-lg md:shadow-xl shadow-teal-500/30 -translate-y-1 md:-translate-y-2'
+                                                                                : 'bg-white border-gray-100 text-gray-500 hover:border-teal/50 hover:text-teal hover:shadow-xl hover:-translate-y-1 md:hover:-translate-y-2'}`}
                                                                         >
-                                                                            {isActive && <div className="absolute inset-x-0 bottom-0 h-2.5 bg-white/30" />}
+                                                                            {isActive && <div className="absolute inset-x-0 bottom-0 h-1.5 md:h-2.5 bg-white/30" />}
                                                                             {isActive ? '✓ ' : ''}{val.name}
                                                                         </button>
                                                                     );
@@ -892,26 +892,37 @@ export default function ProductForm() {
                                 </section>
                             )}
 
-                             <div className="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-16 mt-20 md:mt-32 pt-16 md:pt-24 mb-12 md:mb-16 border-t-4 border-gray-100 col-span-1 lg:col-span-12">
+                            <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-16 mt-12 md:mt-32 pt-12 md:pt-24 mb-12 md:mb-16 border-t-4 border-gray-100 col-span-1 lg:col-span-12">
                                 <Link
                                     to="/admin/products"
-                                    className="w-full md:w-auto px-16 md:px-24 py-8 md:py-11 bg-white border-4 border-gray-100 text-gray-500 font-black uppercase tracking-[0.3em] text-xs md:text-sm rounded-[2.5rem] hover:bg-gray-50 hover:text-graphite hover:border-graphite shadow-sm active:scale-95 transition-all text-center"
+                                    className="w-full md:w-auto px-8 md:px-24 py-6 md:py-11 bg-white border-4 border-gray-100 text-gray-500 font-black uppercase tracking-widest md:tracking-[0.3em] text-[10px] md:text-sm rounded-2xl md:rounded-[2.5rem] hover:bg-gray-50 hover:text-graphite hover:border-graphite shadow-sm active:scale-95 transition-all text-center"
                                 >
                                     Descartar y Volver
                                 </Link>
                                 <button
                                     type="submit"
                                     disabled={isLoading}
-                                    className="w-full md:min-w-[700px] py-10 md:py-13 px-16 md:px-32 bg-teal hover:bg-teal-600 text-white font-black uppercase tracking-[0.3em] md:tracking-[0.5em] text-lg md:text-xl rounded-[3rem] shadow-[0px_40px_80px_-20px_rgba(20,184,166,0.5)] md:shadow-[0px_60px_120px_-20px_rgba(20,184,166,0.6)] hover:-translate-y-3 active:scale-95 transition-all disabled:opacity-50"
+                                    className="w-full md:min-w-[700px] py-7 md:py-13 px-8 md:px-32 bg-teal hover:bg-teal-600 text-white font-black uppercase tracking-widest md:tracking-[0.5em] text-sm md:text-xl rounded-2xl md:rounded-[3rem] shadow-xl md:shadow-[0px_60px_120px_-20px_rgba(20,184,166,0.6)] hover:-translate-y-2 md:hover:-translate-y-3 active:scale-95 transition-all disabled:opacity-50"
                                 >
                                     {isLoading ? 'Guardando catálogo...' : (isEditing ? 'Actualizar Información Ahora' : 'Publicar Producto Ahora')}
                                 </button>
                             </div>
 
-                            {/* Guaranteed white spacer at the very bottom */}
-                            <div className="h-64 col-span-1 lg:col-span-12" aria-hidden="true" />
+                            {/* Guaranteed white spacer at the very bottom - Reduced on mobile */}
+                            <div className="h-16 md:h-64 col-span-1 lg:col-span-12" aria-hidden="true" />
                         </div>
                     </form>
+
+                    {/* Integrated Footer Area - Now inside max-w-5xl for perfect alignment */}
+                    <div className="pt-20 md:pt-40 pb-24 md:pb-48 text-center space-y-8 md:space-y-12 w-full">
+                        <div className="flex justify-center gap-4 opacity-10">
+                            <div className="w-12 h-1.5 bg-pink-hot rounded-full"></div>
+                            <div className="w-12 h-1.5 bg-teal rounded-full"></div>
+                        </div>
+                        <p className="text-gray-400 text-[10px] sm:text-[14px] font-black uppercase tracking-[0.4em] md:tracking-[0.8em] max-w-5xl mx-auto leading-relaxed opacity-40 italic">
+                            SISTEMA CENTRAL DE GESTIÓN VISUAL • VERSIÓN 2.5
+                        </p>
+                    </div>
                 </div>
 
                 <div style={{ display: 'none' }}>
@@ -927,15 +938,15 @@ export default function ProductForm() {
                             {/* Decorative element */}
                             <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-teal via-pink-hot to-indigo-600 opacity-20" />
 
-                            <div className="flex justify-between items-center mb-10 border-b border-gray-100 pb-8 shrink-0">
-                                <div>
-                                    <p className="text-[10px] md:text-xs font-bold text-gray-500 uppercase tracking-[0.4em] mb-2">Configuración Detallada</p>
-                                    <h2 className="text-2xl md:text-4xl font-black uppercase tracking-tighter text-graphite">
+                            <div className="flex justify-between items-center mb-6 md:mb-10 border-b border-gray-100 pb-6 md:pb-8 shrink-0">
+                                <div className="pr-4">
+                                    <p className="text-[10px] md:text-xs font-black text-gray-500 uppercase tracking-widest md:tracking-[0.4em] mb-1 md:mb-2 italic">Configuración Detallada</p>
+                                    <h2 className="text-xl md:text-4xl font-black uppercase tracking-tighter text-graphite leading-none">
                                         Variante: <span className="text-teal">{configuringValue.name}</span>
                                     </h2>
                                 </div>
-                                <button onClick={() => setConfiguringValue(null)} className="w-12 h-12 rounded-2xl bg-gray-50 text-gray-500 hover:text-red-pink hover:bg-red-50 transition-all flex items-center justify-center shadow-sm">
-                                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" /></svg>
+                                <button onClick={() => setConfiguringValue(null)} className="w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-gray-50 text-gray-500 hover:text-red-pink hover:bg-red-50 transition-all flex items-center justify-center shadow-sm shrink-0">
+                                    <svg className="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" /></svg>
                                 </button>
                             </div>
 
@@ -973,9 +984,9 @@ export default function ProductForm() {
                                 <div className="bg-white p-6 md:p-10 rounded-[2.5rem] md:rounded-[3rem] space-y-8 md:space-y-10 border border-gray-100 shadow-sm relative overflow-hidden">
                                     <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-50/50 -mr-16 -mt-16 rounded-full blur-2xl" />
 
-                                    <div className="grid grid-cols-2 gap-8 relative z-10">
-                                        <div className="space-y-5">
-                                            <label className="block text-xs font-black text-gray-500 uppercase tracking-[0.2em] ml-1">Costo Base ($)</label>
+                                    <div className="grid grid-cols-2 gap-4 md:gap-8 relative z-10">
+                                        <div className="space-y-3 md:space-y-5">
+                                            <label className="block text-[10px] md:text-xs font-black text-gray-500 uppercase tracking-widest ml-1">Costo Base ($)</label>
                                             <input
                                                 type="text"
                                                 value={configuringValue.basePrice}
@@ -990,13 +1001,13 @@ export default function ProductForm() {
                                                     else final = (b + m).toFixed(2);
                                                     setConfiguringValue({ ...configuringValue, basePrice: base, price: final });
                                                 }}
-                                                className="w-full px-6 md:px-8 py-4 md:py-5 bg-gray-50/50 border-2 border-gray-50 focus:border-indigo-500 rounded-2xl md:rounded-3xl font-black text-xl md:text-2xl text-graphite outline-none transition-all"
+                                                className="w-full px-4 md:px-8 py-3 md:py-5 bg-gray-50/50 border-2 border-gray-50 focus:border-indigo-500 rounded-xl md:rounded-3xl font-black text-lg md:text-2xl text-graphite outline-none transition-all placeholder:text-gray-300"
                                                 placeholder="0.00"
                                             />
                                         </div>
-                                        <div className="flex flex-col space-y-5">
-                                            <label className="block text-xs font-black text-gray-500 uppercase tracking-[0.2em] ml-1">Rentabilidad</label>
-                                            <div className="flex bg-gray-50/80 rounded-[1.75rem] border border-gray-100 p-2 h-[80px]">
+                                        <div className="flex flex-col space-y-3 md:space-y-5">
+                                            <label className="block text-[10px] md:text-xs font-black text-gray-500 uppercase tracking-widest ml-1">Rentabilidad</label>
+                                            <div className="flex bg-gray-50/80 rounded-2xl md:rounded-[1.75rem] border border-gray-100 p-1.5 md:p-2 h-[60px] md:h-[80px]">
                                                 <button
                                                     onClick={() => {
                                                         const base = configuringValue.basePrice;
@@ -1006,8 +1017,8 @@ export default function ProductForm() {
                                                         const final = (b + (b * m / 100)).toFixed(2);
                                                         setConfiguringValue({ ...configuringValue, markupType: 'percentage', price: final });
                                                     }}
-                                                    className={`flex-1 text-[11px] font-black rounded-[1.25rem] uppercase tracking-widest transition-all ${configuringValue.markupType === 'percentage' ? 'bg-pink-hot text-white shadow-xl shadow-pink-500/30' : 'text-gray-500 hover:text-pink-hot/50'}`}
-                                                >Porcentual</button>
+                                                    className={`flex-1 text-[10px] md:text-[11px] font-black rounded-xl md:rounded-[1.25rem] uppercase tracking-widest transition-all ${configuringValue.markupType === 'percentage' ? 'bg-pink-hot text-white shadow-lg md:shadow-xl shadow-pink-500/30' : 'text-gray-500 hover:text-pink-hot/50'}`}
+                                                >Prc.</button>
                                                 <button
                                                     onClick={() => {
                                                         const base = configuringValue.basePrice;
@@ -1017,14 +1028,14 @@ export default function ProductForm() {
                                                         const final = (b + m).toFixed(2);
                                                         setConfiguringValue({ ...configuringValue, markupType: 'manual', price: final });
                                                     }}
-                                                    className={`flex-1 text-[11px] font-black rounded-[1.25rem] uppercase tracking-widest transition-all ${configuringValue.markupType === 'manual' ? 'bg-teal text-white shadow-xl shadow-teal-500/30' : 'text-gray-500 hover:text-teal/50'}`}
-                                                >Fija ($)</button>
+                                                    className={`flex-1 text-[10px] md:text-[11px] font-black rounded-xl md:rounded-[1.25rem] uppercase tracking-widest transition-all ${configuringValue.markupType === 'manual' ? 'bg-teal text-white shadow-lg md:shadow-xl shadow-teal-500/30' : 'text-gray-500 hover:text-teal/50'}`}
+                                                >Fija</button>
                                             </div>
                                         </div>
                                     </div>
 
-                                    <div className="space-y-5">
-                                        <label className="block text-xs font-black text-gray-500 uppercase tracking-[0.2em] ml-1">
+                                    <div className="space-y-3 md:space-y-5">
+                                        <label className="block text-[10px] md:text-xs font-black text-gray-500 uppercase tracking-widest ml-1">
                                             Ganancia {configuringValue.markupType === 'percentage' ? 'Aplicada (%)' : 'Cargada ($)'}
                                         </label>
                                         <input
@@ -1041,35 +1052,35 @@ export default function ProductForm() {
                                                 else final = (b + m).toFixed(2);
                                                 setConfiguringValue({ ...configuringValue, markup: mark, price: final });
                                             }}
-                                            className="w-full px-6 md:px-10 py-4 md:py-6 bg-gray-50/50 border-2 border-gray-50 focus:border-pink-hot rounded-[1.5rem] font-black text-3xl md:text-5xl text-pink-hot outline-none transition-all shadow-sm"
+                                            className="w-full px-6 md:px-10 py-3 md:py-6 bg-gray-50/50 border-2 border-gray-50 focus:border-pink-hot rounded-2xl md:rounded-[1.5rem] font-black text-2xl md:text-5xl text-pink-hot outline-none transition-all shadow-sm"
                                         />
                                     </div>
 
-                                    <div className="space-y-5">
-                                        <label className="block text-xs font-black text-gray-500 uppercase tracking-[0.2em] ml-1">Control de Stock</label>
+                                    <div className="space-y-3 md:space-y-5">
+                                        <label className="block text-[10px] md:text-xs font-black text-gray-500 uppercase tracking-widest ml-1">Control de Stock</label>
                                         <input
                                             type="text"
                                             value={configuringValue.stock}
                                             onChange={(e) => setConfiguringValue({ ...configuringValue, stock: e.target.value })}
-                                            className="w-full px-6 md:px-10 py-4 md:py-6 bg-gray-50/50 border-2 border-gray-50 focus:border-teal rounded-[1.5rem] font-black text-3xl md:text-5xl text-graphite outline-none transition-all shadow-sm"
+                                            className="w-full px-6 md:px-10 py-3 md:py-6 bg-gray-50/50 border-2 border-gray-50 focus:border-teal rounded-2xl md:rounded-[1.5rem] font-black text-2xl md:text-5xl text-graphite outline-none transition-all shadow-sm"
                                             placeholder="0"
                                         />
                                     </div>
 
-                                    <div className="pt-10 border-t border-gray-100 flex justify-between items-end text-graphite font-black">
+                                    <div className="pt-6 md:pt-10 border-t border-gray-100 flex justify-between items-end text-graphite font-black">
                                         <div>
-                                            <span className="uppercase text-xs tracking-[0.4em] text-gray-500 block mb-2">Precio de Venta Final</span>
-                                            <span className="text-4xl md:text-6xl font-black text-graphite tracking-tighter tabular-nums">${configuringValue.price}</span>
+                                            <span className="uppercase text-[10px] md:text-xs tracking-widest md:tracking-[0.4em] text-gray-500 block mb-1 md:mb-2 italic">Precio de Venta Final</span>
+                                            <span className="text-3xl md:text-6xl font-black text-graphite tracking-tighter tabular-nums">${configuringValue.price}</span>
                                         </div>
-                                        <div className="w-16 h-16 bg-teal/10 rounded-2xl flex items-center justify-center text-teal text-3xl">🏷️</div>
+                                        <div className="w-12 h-12 md:w-16 md:h-16 bg-teal/10 rounded-xl md:rounded-2xl flex items-center justify-center text-teal text-xl md:text-3xl">🏷️</div>
                                     </div>
                                 </div>
 
-                                <div className="space-y-6 pb-10">
+                                <div className="space-y-4 md:space-y-6 pb-6 md:pb-10">
                                     <button
                                         type="button"
                                         onClick={() => handleConfigSave(configuringValue)}
-                                        className="w-full py-7 bg-graphite hover:bg-slate-800 text-white font-black uppercase tracking-[0.3em] text-[11px] rounded-[2rem] shadow-xl shadow-gray-400/20 active:scale-[0.98] transition-all"
+                                        className="w-full py-5 md:py-7 bg-graphite hover:bg-slate-800 text-white font-black uppercase tracking-widest md:tracking-[0.3em] text-[10px] md:text-[11px] rounded-[1.5rem] md:rounded-[2rem] shadow-xl shadow-gray-400/20 active:scale-[0.98] transition-all"
                                     >
                                         Fijar Configuración
                                     </button>
@@ -1096,9 +1107,9 @@ export default function ProductForm() {
                                                 setConfiguringValue(null);
                                             }
                                         }}
-                                        className="w-full py-4 text-gray-400 font-bold uppercase tracking-[0.2em] text-[9px] hover:text-red-pink hover:bg-red-50/50 rounded-2xl transition-all flex items-center justify-center gap-3"
+                                        className="w-full py-3 md:py-4 text-gray-400 font-bold uppercase tracking-widest text-[9px] hover:text-red-pink hover:bg-red-50/50 rounded-xl md:rounded-2xl transition-all flex items-center justify-center gap-2 md:gap-3"
                                     >
-                                        <span>🗑️</span> Eliminar Variante de la Base de Datos
+                                        <span>🗑️</span> Borrar de Base de Datos
                                     </button>
                                 </div>
                             </div>

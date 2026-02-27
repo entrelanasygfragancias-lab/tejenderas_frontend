@@ -47,7 +47,7 @@ export default function Register() {
                 <div className="absolute top-10 right-10 w-96 h-96 bg-pink-hot rounded-full blur-3xl"></div>
             </div>
 
-            <div className="w-full max-w-2xl px-4 relative z-10">
+            <div className="w-full max-w-2xl safe-mobile-margin relative z-10">
                 {/* Logo / Header */}
                 <div className="text-center mb-6 md:mb-10 flex flex-col items-center">
                     <Logo className="w-24 h-24 md:w-32 md:h-32 mb-4 md:mb-6 drop-shadow-2xl filter hover:scale-105 transition-transform duration-300 mx-auto" />

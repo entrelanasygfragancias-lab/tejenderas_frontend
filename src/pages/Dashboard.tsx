@@ -92,87 +92,88 @@ export default function Dashboard() {
 
     return (
         <AdminLayout
-            title="Dashboard"
-            subtitle="Panel de control general"
+            title="Panel de Control"
+            subtitle="Bienvenido al centro administrativo de Entre Lanas y Fragancias"
             headerActions={headerActions}
-            titleWrapperClassName="translate-x-6 md:translate-x-12"
         >
-            {/* Cards Grid */}
-            <div className="h-8 md:h-12"></div>
-            <div className="flex justify-center w-full">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-12 w-[85%] mx-auto md:w-full md:max-w-6xl pl-6 md:pl-12">
+            {/* Espaciador manual para asegurar separación */}
+            <div style={{ height: '4rem' }} className="w-full hidden md:block"></div>
+            <div style={{ height: '2rem' }} className="w-full md:hidden"></div>
+
+            {/* Cards Grid con estilo inline para diagnóstico */}
+            <div className="flex justify-center w-full" style={{ paddingTop: '2rem' }}>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-12 w-full max-w-6xl">
                     {isAdmin && (
                         <>
                             <Link
                                 to="/admin/products"
-                                className="group bg-white rounded-lg lg:rounded-xl border-4 border-graphite p-5 lg:p-8 shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all relative overflow-hidden flex flex-col justify-between min-h-[180px] lg:min-h-[280px]"
+                                className="group bg-white rounded-xl border-4 border-graphite p-8 lg:p-10 shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all relative overflow-hidden flex flex-col justify-between min-h-[240px] lg:min-h-[300px]"
                             >
-                                <div className="absolute top-0 right-0 p-4 lg:p-6 opacity-10 group-hover:opacity-20 transition-opacity">
-                                    <svg className="w-20 h-20 lg:w-32 lg:h-32 text-teal" fill="currentColor" viewBox="0 0 24 24"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
+                                <div className="absolute top-0 right-0 p-6 lg:p-8 opacity-10 group-hover:opacity-20 transition-opacity">
+                                    <svg className="w-24 h-24 lg:w-36 lg:h-36 text-teal" fill="currentColor" viewBox="0 0 24 24"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
                                 </div>
-                                <div className="w-12 h-12 lg:w-20 lg:h-20 bg-teal rounded-xl lg:rounded-3xl border-4 border-graphite flex items-center justify-center mb-3 lg:mb-6 shadow-md">
-                                    <svg className="w-6 h-6 lg:w-10 lg:h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={3}>
+                                <div className="w-16 h-16 lg:w-20 lg:h-20 bg-teal rounded-2xl border-4 border-graphite flex items-center justify-center mb-6 shadow-md">
+                                    <svg className="w-8 h-8 lg:w-10 lg:h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={3}>
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                                     </svg>
                                 </div>
                                 <div>
-                                    <h3 className="text-2xl lg:text-4xl font-black text-graphite mb-1 lg:mb-2 uppercase tracking-tighter leading-none group-hover:text-teal transition-colors">Productos</h3>
-                                    <p className="text-sm lg:text-xl text-gray-500 font-medium leading-relaxed">Gestionar inventario</p>
+                                    <h3 className="text-3xl lg:text-4xl font-black text-graphite mb-2 uppercase tracking-tighter leading-none group-hover:text-teal transition-colors">Productos</h3>
+                                    <p className="text-lg lg:text-xl text-gray-500 font-medium leading-relaxed">Inventario general</p>
                                 </div>
                             </Link>
 
                             <Link
                                 to="/admin/pos"
-                                className="group bg-white rounded-lg lg:rounded-xl border-4 border-graphite p-5 lg:p-8 shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all relative overflow-hidden flex flex-col justify-between min-h-[180px] lg:min-h-[280px]"
+                                className="group bg-white rounded-xl border-4 border-graphite p-8 lg:p-10 shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all relative overflow-hidden flex flex-col justify-between min-h-[240px] lg:min-h-[300px]"
                             >
-                                <div className="absolute top-0 right-0 p-4 lg:p-6 opacity-10 group-hover:opacity-20 transition-opacity">
-                                    <svg className="w-20 h-20 lg:w-32 lg:h-32 text-lime" fill="currentColor" viewBox="0 0 24 24"><path d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
+                                <div className="absolute top-0 right-0 p-6 lg:p-8 opacity-10 group-hover:opacity-20 transition-opacity">
+                                    <svg className="w-24 h-24 lg:w-36 lg:h-36 text-lime" fill="currentColor" viewBox="0 0 24 24"><path d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
                                 </div>
-                                <div className="w-12 h-12 lg:w-20 lg:h-20 bg-lime rounded-xl lg:rounded-3xl border-4 border-graphite flex items-center justify-center mb-3 lg:mb-6 shadow-md">
-                                    <svg className="w-6 h-6 lg:w-10 lg:h-10 text-graphite" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={3}>
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v1m6 11h2m-6 0h-2v4h8v-4m0 0a3 3 0 00-5.368-1.267 3 3 0 00-5.264 0A3 3 0 006 19v-4m6 11v1m4-12H8l4.01 4.01M16 8l-4 4-4-4" />
+                                <div className="w-16 h-16 lg:w-20 lg:h-20 bg-lime rounded-2xl border-4 border-graphite flex items-center justify-center mb-6 shadow-md">
+                                    <svg className="w-8 h-8 lg:w-10 lg:h-10 text-graphite" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={3}>
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
                                     </svg>
                                 </div>
                                 <div>
-                                    <h3 className="text-2xl lg:text-4xl font-black text-graphite mb-1 lg:mb-2 uppercase tracking-tighter leading-none group-hover:text-lime-dark transition-colors">Punto de Venta</h3>
-                                    <p className="text-sm lg:text-xl text-gray-500 font-medium leading-relaxed">Registrar ventas</p>
+                                    <h3 className="text-3xl lg:text-4xl font-black text-graphite mb-2 uppercase tracking-tighter leading-none group-hover:text-lime-dark transition-colors">Ventas</h3>
+                                    <p className="text-lg lg:text-xl text-gray-500 font-medium leading-relaxed">Facturación POS</p>
                                 </div>
                             </Link>
 
                             <Link
                                 to="/admin/contracts"
-                                className="group bg-white rounded-lg lg:rounded-xl border-4 border-graphite p-5 lg:p-8 shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all relative overflow-hidden flex flex-col justify-between min-h-[180px] lg:min-h-[280px]"
+                                className="group bg-white rounded-xl border-4 border-graphite p-8 lg:p-10 shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all relative overflow-hidden flex flex-col justify-between min-h-[240px] lg:min-h-[300px]"
                             >
-                                <div className="absolute top-0 right-0 p-4 lg:p-6 opacity-10 group-hover:opacity-20 transition-opacity">
-                                    <svg className="w-20 h-20 lg:w-32 lg:h-32 text-pink-hot" fill="currentColor" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                                <div className="absolute top-0 right-0 p-6 lg:p-8 opacity-10 group-hover:opacity-20 transition-opacity">
+                                    <svg className="w-24 h-24 lg:w-36 lg:h-36 text-pink-hot" fill="currentColor" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                                 </div>
-                                <div className="w-12 h-12 lg:w-20 lg:h-20 bg-pink-hot rounded-xl lg:rounded-3xl border-4 border-graphite flex items-center justify-center mb-3 lg:mb-6 shadow-md">
-                                    <svg className="w-6 h-6 lg:w-10 lg:h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={3}>
+                                <div className="w-16 h-16 lg:w-20 lg:h-20 bg-pink-hot rounded-2xl border-4 border-graphite flex items-center justify-center mb-6 shadow-md">
+                                    <svg className="w-8 h-8 lg:w-10 lg:h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={3}>
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                     </svg>
                                 </div>
                                 <div>
-                                    <h3 className="text-2xl lg:text-4xl font-black text-graphite mb-1 lg:mb-2 uppercase tracking-tighter leading-none group-hover:text-pink-hot transition-colors">Contratos</h3>
-                                    <p className="text-sm lg:text-xl text-gray-500 font-medium leading-relaxed">Uniformes corporativos</p>
+                                    <h3 className="text-3xl lg:text-4xl font-black text-graphite mb-2 uppercase tracking-tighter leading-none group-hover:text-pink-hot transition-colors">Contratos</h3>
+                                    <p className="text-lg lg:text-xl text-gray-500 font-medium leading-relaxed">Servicios especiales</p>
                                 </div>
                             </Link>
                         </>
                     )}
 
                     {!isAdmin && (
-                        <div className="bg-white rounded-lg lg:rounded-xl border-8 border-dashed border-gray-300 p-5 lg:p-8 flex flex-col items-center justify-center text-center min-h-[180px] lg:min-h-[280px]">
-                            <div className="w-12 h-12 lg:w-20 lg:h-20 bg-gray-100 rounded-full flex items-center justify-center mb-3 lg:mb-6">
-                                <svg className="w-6 h-6 lg:w-10 lg:h-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <div className="bg-white rounded-xl border-8 border-dashed border-gray-100 p-8 lg:p-12 flex flex-col items-center justify-center text-center min-h-[280px]">
+                            <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mb-6">
+                                <svg className="w-10 h-10 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                 </svg>
                             </div>
-                            <h3 className="text-xl lg:text-3xl font-bold text-gray-400 mb-1 lg:mb-4">Mi Perfil</h3>
-                            <p className="text-sm lg:text-xl text-gray-400">Pronto podrás ver tu historial de compras.</p>
+                            <h3 className="text-2xl lg:text-3xl font-bold text-gray-300 mb-2">Mi Perfil</h3>
+                            <p className="text-lg text-gray-300">Pronto podrás ver tu historial de compras.</p>
                         </div>
                     )}
                 </div>
             </div>
-            <div className="h-12 md:hidden"></div>
         </AdminLayout>
     );
 }

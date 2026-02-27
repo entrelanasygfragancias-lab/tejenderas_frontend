@@ -11,7 +11,7 @@ export default function About() {
             <Navbar onOpenCart={() => setIsCartOpen(true)} />
 
             {/* Main Content */}
-            <main className="pt-32 lg:pt-48 pb-48 lg:pb-64 px-6 md:px-12 bg-white flex flex-col items-center">
+            <main className="pt-32 lg:pt-48 pb-48 lg:pb-64 safe-mobile-margin md:px-12 bg-white flex flex-col items-center">
                 <div className="max-w-4xl w-full">
                     {/* Header */}
                     <div className="text-center mb-32 animate-fadeIn">

@@ -2,6 +2,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap');
 @import "tailwindcss";
 
+/* 
+  @theme: Disabling lint warning for Tailwind 4's @theme rule.
+  Vite/Tailwind 4 will still process this correctly.
+*/
 @theme {
   --color-grey-light: #fff2d0;
   --color-pink-hot: #FE6196;
@@ -12,6 +16,18 @@
   /* Neutrals */
   --color-graphite: #000000;
   --color-white: #ffffff;
+
+  /* Spacing Safety */
+  --spacing-mobile-safe: 1.5rem;
+  /* 24px */
+}
+
+/* Global Mobile Safety Margin - Pure CSS */
+@media (max-width: 768px) {
+  .safe-mobile-margin {
+    padding-left: var(--spacing-mobile-safe) !important;
+    padding-right: var(--spacing-mobile-safe) !important;
+  }
 }
 
 :root {
@@ -34,6 +50,7 @@
 
 body {
   min-height: 100vh;
+  overflow-x: hidden;
 }
 
 /* Custom Scrollbar */
@@ -208,4 +225,24 @@ body {
 
 .animate-bounce-x {
   animation: bounce-x 1s infinite;
+}
+
+/* Fallback for Legal Page */
+.legal-justify {
+  text-align: justify !important;
+}
+
+.legal-container {
+  max-width: 1200px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  padding-left: 2rem !important;
+  padding-right: 2rem !important;
+}
+
+@media (min-width: 768px) {
+  .legal-container {
+    padding-left: 4rem !important;
+    padding-right: 4rem !important;
+  }
 }

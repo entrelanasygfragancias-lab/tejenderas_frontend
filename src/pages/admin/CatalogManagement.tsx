@@ -136,19 +136,21 @@ export default function CatalogManagement() {
     return (
         <AdminLayout
             title="Gestión de Catálogo"
-            subtitle="Organiza tus categorías y atributos de forma visual"
+            subtitle="Organiza tus categorías y atributos de forma visual y profesional"
             actions={
                 <button
                     onClick={() => setShowAddModal(true)}
-                    className="px-6 py-3 bg-pink-hot hover:bg-pink-600 text-white font-black uppercase tracking-widest rounded-xl border-2 border-graphite shadow-[4px_4px_0px_0px_#333] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_#333] transition-all flex items-center gap-2"
+                    className="w-full sm:w-auto px-6 sm:px-8 py-4 sm:py-5 bg-pink-hot hover:bg-pink-600 text-white font-black uppercase tracking-widest rounded-2xl border-4 border-graphite shadow-[6px_6px_0px_0px_#333] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[3px_3px_0px_0px_#333] transition-all flex items-center justify-center gap-3 text-xs sm:text-base"
                 >
-                    <span className="text-xl">+</span> Nuevo {activeTab === 'categories' ? 'Categoría' : 'Atributo'}
+                    <span className="text-xl sm:text-2xl">+</span> Nuevo {activeTab === 'categories' ? 'Categoría' : 'Atributo'}
                 </button>
             }
         >
-            <div style={{ paddingTop: '3rem', paddingLeft: '1.0rem', paddingRight: '1.0rem', display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
+            <div className="flex flex-col items-center w-full">
+                <div className="h-10 md:h-12"></div>
+
                 {/* Tabs Modernas */}
-                <div className="flex justify-center flex-wrap gap-3 mb-4">
+                <div className="flex justify-center flex-wrap gap-4">
                     <button
                         onClick={() => setActiveTab('categories')}
                         className={`px-5 py-3 sm:px-8 sm:py-4 md:px-10 rounded-xl md:rounded-2xl font-black uppercase tracking-[0.15em] text-xs sm:text-sm transition-all border-b-8 ${activeTab === 'categories'
@@ -169,6 +171,9 @@ export default function CatalogManagement() {
                     </button>
                 </div>
 
+                {/* Gran Espaciador para evitar solapamiento */}
+                <div className="h-16 md:h-24"></div>
+
                 {isLoading ? (
                     <div className="flex flex-col items-center justify-center py-20 bg-white rounded-xl md:rounded-2xl border-4 border-graphite shadow-xl">
                         <div className="animate-spin w-14 h-14 border-8 border-gray-100 border-t-pink-hot rounded-full mb-6"></div>
@@ -179,12 +184,12 @@ export default function CatalogManagement() {
                         {activeTab === 'categories' ? (
                             categories.map(cat => (
                                 <div key={cat.id} className="group bg-white rounded-xl md:rounded-2xl border-4 border-graphite shadow-[6px_6px_0px_0px_#333] md:shadow-[10px_10px_0px_0px_#333] overflow-hidden transition-all hover:-translate-y-1">
-                                    <div className="p-4 sm:p-6 md:p-8 bg-graphite flex justify-between items-start sm:items-center text-white gap-2">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-pink-hot rounded-xl flex items-center justify-center text-xl sm:text-2xl shadow-[3px_3px_0px_0px_rgba(255,255,255,0.2)] shrink-0">
+                                    <div className="p-4 sm:p-6 md:p-8 bg-graphite flex flex-col sm:flex-row justify-between items-center text-white gap-4">
+                                        <div className="flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
+                                            <div className="w-12 h-12 sm:w-14 sm:h-14 bg-pink-hot rounded-2xl flex items-center justify-center text-2xl sm:text-3xl shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)] shrink-0">
                                                 📦
                                             </div>
-                                            <h3 className="text-base sm:text-xl md:text-2xl font-black uppercase tracking-tight">{cat.name}</h3>
+                                            <h3 className="text-lg sm:text-2xl md:text-3xl font-black uppercase tracking-tight italic">{cat.name}</h3>
                                         </div>
                                         <div className="flex gap-1 sm:gap-2">
                                             <button onClick={() => setEditingItem({ type: 'category', id: cat.id, name: cat.name })} className="p-2 hover:bg-white/10 rounded-lg text-teal"><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg></button>
@@ -234,12 +239,12 @@ export default function CatalogManagement() {
                         ) : (
                             attributes.map(attr => (
                                 <div key={attr.id} className="group bg-white rounded-xl md:rounded-2xl border-4 border-graphite shadow-[6px_6px_0px_0px_#333] md:shadow-[10px_10px_0px_0px_#333] overflow-hidden transition-all hover:-translate-y-1">
-                                    <div className="p-4 sm:p-6 md:p-8 bg-purple-900 flex justify-between items-start sm:items-center text-white gap-2">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-purple-600 rounded-xl flex items-center justify-center text-xl sm:text-2xl shadow-[3px_3px_0px_0px_rgba(255,255,255,0.2)] shrink-0">
+                                    <div className="p-4 sm:p-6 md:p-8 bg-purple-900 flex flex-col sm:flex-row justify-between items-center text-white gap-4">
+                                        <div className="flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
+                                            <div className="w-12 h-12 sm:w-14 sm:h-14 bg-purple-600 rounded-2xl flex items-center justify-center text-2xl sm:text-3xl shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)] shrink-0">
                                                 🛠️
                                             </div>
-                                            <h3 className="text-base sm:text-xl md:text-2xl font-black uppercase tracking-tight">{attr.name}</h3>
+                                            <h3 className="text-lg sm:text-2xl md:text-3xl font-black uppercase tracking-tight italic">{attr.name}</h3>
                                         </div>
                                         <div className="flex gap-1 sm:gap-2">
                                             <button onClick={() => setEditingItem({ type: 'attribute', id: attr.id, name: attr.name })} className="p-2 hover:bg-white/10 rounded-lg text-teal"><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg></button>
@@ -311,6 +316,16 @@ export default function CatalogManagement() {
                         </div>
                     </div>
                 )}
+                {/* Integrated Footer Area */}
+                <div className="pt-12 md:pt-96 pb-24 md:pb-48 text-center space-y-8 md:space-y-12 w-full">
+                    <div className="flex justify-center gap-4 opacity-10">
+                        <div className="w-12 h-1.5 bg-pink-hot rounded-full"></div>
+                        <div className="w-12 h-1.5 bg-teal rounded-full"></div>
+                    </div>
+                    <p className="text-gray-400 text-[10px] sm:text-[14px] font-black uppercase tracking-[0.4em] md:tracking-[0.8em] max-w-5xl mx-auto leading-relaxed opacity-40 italic">
+                        SISTEMA CENTRAL DE GESTIÓN VISUAL • VERSIÓN 2.5
+                    </p>
+                </div>
             </div>
         </AdminLayout>
     );

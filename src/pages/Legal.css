@@ -1,0 +1,120 @@
+/* Estilos específicos para la página Legal */
+.legal-page {
+    background-color: #ffffff;
+    color: #000000;
+    font-family: sans-serif;
+    min-height: 100vh;
+}
+
+.legal-main {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 60px 24px;
+}
+
+.legal-header {
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+.legal-title {
+    font-size: 3rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+}
+
+.legal-section {
+    margin-bottom: 60px;
+    padding: 0 24px;
+}
+
+.legal-section h2 {
+    font-size: 1.8rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    margin-bottom: 25px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.legal-number {
+    background: #000;
+    color: #fff;
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    box-shadow: 4px 4px 0px 0px #FF4D8D;
+}
+
+.legal-text-block {
+    text-align: justify !important;
+    line-height: 1.8;
+    font-size: 1.1rem;
+    color: #333;
+}
+
+.legal-text-block p {
+    margin-bottom: 25px;
+}
+
+.legal-text-block ul {
+    list-style-type: disc;
+    padding-left: 30px;
+    margin-bottom: 25px;
+}
+
+.legal-text-block li {
+    margin-bottom: 15px;
+}
+
+.legal-highlight-box {
+    background-color: #f9f9f9;
+    padding: 30px;
+    border-radius: 20px;
+    border: 2px dashed #ddd;
+    font-style: italic;
+    margin-top: 30px;
+}
+
+.legal-btn-container {
+    text-align: center;
+    margin-top: 80px;
+}
+
+.legal-btn-back {
+    display: inline-block;
+    padding: 18px 40px;
+    background-color: #FE6196;
+    color: white;
+    text-decoration: none;
+    font-weight: 900;
+    text-transform: uppercase;
+    border-radius: 25px;
+    border: 4px solid #000;
+    box-shadow: 6px 6px 0px 0px #333;
+    transition: all 0.2s;
+}
+
+.legal-btn-back:hover {
+    box-shadow: none;
+    transform: translate(3px, 3px);
+}
+
+@media (min-width: 768px) {
+    .legal-main {
+        padding: 100px 50px;
+    }
+
+    .legal-title {
+        font-size: 5rem;
+    }
+
+    .legal-text-block {
+        font-size: 1.3rem;
+    }
+}

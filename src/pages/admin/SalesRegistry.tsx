@@ -250,12 +250,10 @@ export default function SalesRegistry() {
     return (
         <AdminLayout
             title="Registro de Ventas"
-            subtitle="Historial y desglose por categoría"
-            centerTitle={false}
-            titleWrapperClassName="translate-x-6 md:translate-x-12"
+            subtitle="Seguimiento detallado de todas las transacciones comerciales"
         >
             <div className="w-full pb-14 flex flex-col items-center">
-                <div className="h-6 md:h-8"></div>
+                <div className="h-10 md:h-16"></div>
                 {/* Filters */}
                 <div className="w-[90%] md:w-full max-w-6xl mx-auto flex flex-col items-center gap-8 mb-14 mt-6">
                     <h2 className="text-2xl md:text-3xl font-black text-graphite uppercase tracking-tighter text-center">Listado de Ventas</h2>
@@ -390,21 +388,21 @@ export default function SalesRegistry() {
                                                     </span>
                                                 </td>
                                                 <td className="px-4 py-5 text-center">
-                                                    {sale.type === 'pos' ? (
+                                                    {(sale.type === 'pos' || sale.type === 'order') ? (
                                                         <span className="font-black text-lg text-pink-hot">{formatCurrency(sale.telas_total || 0)}</span>
                                                     ) : (
                                                         <span className="text-gray-300">-</span>
                                                     )}
                                                 </td>
                                                 <td className="px-4 py-5 text-center">
-                                                    {sale.type === 'pos' ? (
+                                                    {(sale.type === 'pos' || sale.type === 'order') ? (
                                                         <div className="flex flex-col">
                                                             <span className="font-black text-lg text-purple-600">{formatCurrency(sale.perfumeria_total || 0)}</span>
-                                                            {(sale.perfumeria_catalogo_total || sale.perfumeria_disenador_total) && (
+                                                            {(Number(sale.perfumeria_catalogo_total || 0) > 0 || Number(sale.perfumeria_disenador_total || 0) > 0) ? (
                                                                 <span className="text-[9px] text-gray-400 font-bold uppercase">
                                                                     Cat: {formatCurrency(sale.perfumeria_catalogo_total || 0)} / Dis: {formatCurrency(sale.perfumeria_disenador_total || 0)}
                                                                 </span>
-                                                            )}
+                                                            ) : null}
                                                         </div>
                                                     ) : (
                                                         <span className="text-gray-300">-</span>
@@ -476,7 +474,7 @@ export default function SalesRegistry() {
                                         <div className="grid grid-cols-2 gap-3 pt-4 border-t-2 border-dashed border-gray-100 mb-4">
                                             <div className="flex flex-col">
                                                 <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1">Desglose</span>
-                                                {sale.type === 'pos' ? (
+                                                {(sale.type === 'pos' || sale.type === 'order') ? (
                                                     <div className="space-y-1">
                                                         <div className="flex justify-between items-center text-xs">
                                                             <span className="text-pink-500 font-bold">Telas:</span>
@@ -525,6 +523,17 @@ export default function SalesRegistry() {
                     </div>
                 )}
                 <div className="h-12 md:hidden"></div>
+
+                {/* Integrated Footer Area */}
+                <div className="pt-12 md:pt-96 pb-24 md:pb-48 text-center space-y-8 md:space-y-12 w-full">
+                    <div className="flex justify-center gap-4 opacity-10">
+                        <div className="w-12 h-1.5 bg-pink-hot rounded-full"></div>
+                        <div className="w-12 h-1.5 bg-teal rounded-full"></div>
+                    </div>
+                    <p className="text-gray-400 text-[10px] sm:text-[14px] font-black uppercase tracking-[0.4em] md:tracking-[0.8em] max-w-5xl mx-auto leading-relaxed opacity-40 italic">
+                        SISTEMA CENTRAL DE GESTIÓN VISUAL • VERSIÓN 2.5
+                    </p>
+                </div>
 
                 {/* Hidden Print Area */}
                 <div style={{ position: 'absolute', top: '-9999px', left: '-9999px' }}>

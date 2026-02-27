@@ -12,6 +12,54 @@ import CartDrawer from '../components/CartDrawer';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 
+// Componente para Modal Informativo
+const InfoModal = ({ isOpen, onClose, title, content }: { isOpen: boolean; onClose: () => void; title: string; content: React.ReactNode }) => (
+    <AnimatePresence>
+        {isOpen && (
+            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    onClick={onClose}
+                    className="absolute inset-0 bg-graphite/60 backdrop-blur-sm"
+                />
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                    className="relative bg-white w-full max-w-2xl rounded-xl border-4 border-graphite shadow-[12px_12px_0px_0px_#333] p-8 md:p-12 overflow-hidden"
+                >
+                    <button
+                        onClick={onClose}
+                        className="absolute top-4 right-4 md:top-6 md:right-6 w-10 h-10 md:w-12 md:h-12 bg-gray-100 hover:bg-pink-hot hover:text-white rounded-lg flex items-center justify-center transition-all border-2 border-transparent hover:border-graphite group"
+                    >
+                        <svg className="w-5 h-5 md:w-6 md:h-6 group-hover:rotate-90 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+
+                    <div className="space-y-6">
+                        <h3 className="text-3xl md:text-5xl font-black text-graphite uppercase tracking-tighter leading-none">
+                            {title}
+                        </h3>
+                        <div className="h-2 w-20 bg-pink-hot rounded-full"></div>
+                        <div className="text-lg md:text-xl text-gray-600 font-bold leading-relaxed">
+                            {content}
+                        </div>
+                        <button
+                            onClick={onClose}
+                            className="w-full py-4 md:py-5 bg-graphite text-white font-black uppercase tracking-widest rounded-xl border-4 border-graphite shadow-[5px_5px_0px_0px_#FF4D8D] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all mt-6 md:mt-8"
+                        >
+                            Entendido
+                        </button>
+                    </div>
+                </motion.div>
+            </div>
+        )}
+    </AnimatePresence>
+);
+
 interface AttributeValuePivot {
     id: number;
     name: string;
@@ -170,6 +218,7 @@ export default function Home() {
     const [selectedSubcategoryId, setSelectedSubcategoryId] = useState<number | 'all'>('all');
     const [searchQuery, setSearchQuery] = useState<string>('');
     const [isCartOpen, setIsCartOpen] = useState(false);
+    const [activeInfoModal, setActiveInfoModal] = useState<'shipping' | 'payment' | 'quality' | null>(null);
     const [heroBanners, setHeroBanners] = useState<HeroBanner[]>([]);
 
     const { addToCart } = useCart();
@@ -300,11 +349,38 @@ export default function Home() {
     };
 
     const categories = [
-        { name: 'Telas por Metro', desc: 'Algodón, lino, poliéster' },
-        { name: 'Hilos y Lanas', desc: 'Para bordar y tejer' },
-        { name: 'Uniformes', desc: 'Corporativos' },
-        { name: 'Fragancias', desc: 'Esencias y aromas únicos' },
+        { name: 'Telas por Metro', desc: 'Algodón, lino, poliéster', filter: 'Telas por Metro' },
+        { name: 'Hilos y Lanas', desc: 'Para bordar y tejer', filter: 'Hilos y Lanas' },
+        { name: 'Uniformes', desc: 'Corporativos', filter: 'Uniformes' },
+        { name: 'Fragancias', desc: 'Esencias y aromas únicos', filter: 'Fragancias' },
     ];
+
+    const handleCategoryClick = (catName: string) => {
+        // Find category by name to get its ID
+        const cat = dbCategories.find(c => c.name.toLowerCase() === catName.toLowerCase());
+        if (cat) {
+            setSelectedDbCategoryId(cat.id);
+            setSelectedSubcategoryId('all');
+            setSelectedCategory(`cat-${cat.id}`);
+
+            // Scroll to products
+            setTimeout(() => {
+                const section = document.getElementById('filtros-home');
+                if (section) {
+                    section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }, 100);
+        } else {
+            // Fallback to text search if category not found in DB
+            setSearchQuery(catName);
+            setTimeout(() => {
+                const section = document.getElementById('filtros-home');
+                if (section) {
+                    section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }, 100);
+        }
+    };
 
 
     const getProductImages = (imagesData: any): string[] => {
@@ -471,10 +547,14 @@ export default function Home() {
                 <div className="max-w-360 mx-auto">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 max-md:gap-6 lg:gap-10 justify-items-center">
                         {categories.map((cat, i) => (
-                            <a href="#" key={i} className="group bg-white px-8 py-12 max-md:px-6 max-md:py-8 rounded-4xl border-4 border-graphite shadow-[8px_8px_0px_0px_rgba(51,51,51,1)] hover:shadow-none hover:translate-x-[4px] hover:translate-y-[4px] transition-all duration-200 text-center w-full">
-                                <h3 className="text-2xl lg:text-3xl max-md:text-xl font-black text-graphite mb-3 group-hover:text-pink-hot uppercase tracking-tight">{cat.name}</h3>
-                                <p className="text-lg max-md:text-base text-gray-500 font-bold">{cat.desc}</p>
-                            </a>
+                            <button
+                                key={i}
+                                onClick={() => handleCategoryClick(cat.name)}
+                                className="group bg-white px-8 py-14 max-md:px-8 max-md:py-10 rounded-[2.5rem] border-4 border-graphite shadow-[10px_10px_0px_0px_rgba(51,51,51,1)] hover:shadow-none hover:translate-x-[4px] hover:translate-y-[4px] transition-all duration-300 text-center w-full flex flex-col items-center justify-center cursor-pointer"
+                            >
+                                <h3 className="text-2xl lg:text-3xl max-md:text-xl font-black text-graphite mb-3 group-hover:text-pink-hot uppercase tracking-tight transition-colors">{cat.name}</h3>
+                                <p className="text-lg max-md:text-base text-gray-500 font-bold opacity-80">{cat.desc}</p>
+                            </button>
                         ))}
                     </div>
                 </div>
@@ -777,25 +857,90 @@ export default function Home() {
                 <div className="max-w-7xl w-full flex flex-col items-center">
                     <div className="flex flex-wrap justify-center gap-12 md:gap-24 w-full">
                         {[
-                            { title: 'Envíos Nacionales', desc: 'A todo el país', icon: 'M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4' },
-                            { title: 'Pago Seguro', desc: 'Múltiples métodos', icon: 'M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z' },
-                            { title: 'Calidad Premium', desc: 'Garantizada', icon: 'M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 013.138-3.138z' },
+                            { id: 'shipping' as const, title: 'Envíos Nacionales', desc: 'Interrapidísimo', icon: 'M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4' },
+                            { id: 'payment' as const, title: 'Pago Seguro', desc: 'Transferencia QR', icon: 'M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z' },
+                            { id: 'quality' as const, title: 'Productos de Calidad', desc: 'Selección Premium', icon: 'M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 013.138-3.138z' },
                         ].map((f, i) => (
-                            <div key={i} className="flex flex-col items-center gap-6 p-8 md:p-12 rounded-[2.5rem] border-4 border-graphite bg-white shadow-[12px_12px_0_0_rgba(51,51,51,1)] hover:shadow-none hover:translate-x-[6px] hover:translate-y-[6px] transition duration-200 text-center w-80 max-md:w-full">
+                            <button
+                                key={i}
+                                onClick={() => setActiveInfoModal(f.id)}
+                                className="flex flex-col items-center gap-6 p-8 md:p-12 rounded-[2.5rem] border-4 border-graphite bg-white shadow-[12px_12px_0_0_rgba(51,51,51,1)] hover:shadow-none hover:translate-x-[6px] hover:translate-y-[6px] transition duration-300 text-center w-80 max-md:w-full cursor-pointer hover:border-pink-hot"
+                            >
                                 <div className="w-20 h-20 bg-pink-hot text-white rounded-full flex items-center justify-center shrink-0 border-4 border-graphite">
                                     <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d={f.icon} />
                                     </svg>
                                 </div>
-                                <div>
-                                    <h3 className="font-black text-graphite text-xl md:text-2xl mb-1">{f.title}</h3>
+                                <div className="">
+                                    <h3 className="font-black text-graphite text-xl md:text-2xl mb-1 uppercase tracking-tight">{f.title}</h3>
                                     <p className="text-gray-500 font-bold">{f.desc}</p>
+                                    <span className="text-pink-hot text-[10px] font-black uppercase tracking-widest mt-4 block">+ Información</span>
                                 </div>
-                            </div>
+                            </button>
                         ))}
                     </div>
                 </div>
             </section>
+
+            {/* Modales Informativos */}
+            <InfoModal
+                isOpen={activeInfoModal === 'shipping'}
+                onClose={() => setActiveInfoModal(null)}
+                title="Envíos Nacionales"
+                content={
+                    <div className="space-y-4">
+                        <p>Realizamos envíos a <strong>todo el territorio colombiano</strong> a través de nuestra transportadora oficial <strong>Interrapidísimo</strong>.</p>
+                        <ul className="list-disc pl-5 space-y-2">
+                            <li><strong>Costo de envío:</strong> El valor varía según la ciudad o ubicación destino configurada en tu pedido.</li>
+                            <li><strong>Gestión de Guía:</strong> Una vez despachado tu pedido, el administrador agregará el número de guía oficial.</li>
+                            <li><strong>Rastreo:</strong> Podrás consultar el estado de tu paquete en tiempo real usando el número de guía asignado.</li>
+                        </ul>
+                        <p className="bg-lime/20 p-4 rounded-2xl border-2 border-dashed border-graphite text-sm font-bold">
+                            Recibirás notificaciones sobre el estado de tu despacho en tu panel de usuario.
+                        </p>
+                    </div>
+                }
+            />
+
+            <InfoModal
+                isOpen={activeInfoModal === 'payment'}
+                onClose={() => setActiveInfoModal(null)}
+                title="Pago Seguro"
+                content={
+                    <div className="space-y-4">
+                        <p>Actualmente manejamos exclusivamente pagos mediante <strong>código QR (llave)</strong> para garantizar transacciones rápidas y seguras.</p>
+                        <ol className="list-decimal pl-5 space-y-2">
+                            <li><strong>Escanear QR:</strong> Utiliza tu aplicación bancaria para escanear el QR mostrado al finalizar la compra.</li>
+                            <li><strong>Realizar Pago:</strong> Efectúa la transferencia por el valor total de tu pedido.</li>
+                            <li><strong>Enviar Comprobante:</strong> Sube la imagen del comprobante de pago en el detalle de tu orden.</li>
+                            <li><strong>Verificación Manual:</strong> El administrador validará el ingreso del dinero en el sistema.</li>
+                        </ol>
+                        <div className="bg-pink-hot/10 p-5 rounded-2xl border-2 border-pink-hot/30 text-sm">
+                            <p className="font-bold text-pink-hot mb-1 uppercase tracking-tighter">Importante:</p>
+                            <p>El pedido solo será enviado tras la verificación exitosa. En caso de no reflejarse el pago, la orden pasará a estado <strong>"Rechazado por pago"</strong>.</p>
+                        </div>
+                    </div>
+                }
+            />
+
+            <InfoModal
+                isOpen={activeInfoModal === 'quality'}
+                onClose={() => setActiveInfoModal(null)}
+                title="Calidad Garantizada"
+                content={
+                    <div className="space-y-4">
+                        <p>En <strong>Entre Lanas y Fragancias</strong>, cada producto en nuestra tienda virtual pasa por un riguroso proceso de selección manual.</p>
+                        <ul className="list-disc pl-5 space-y-2">
+                            <li><strong>Selección Curada:</strong> Elegimos hilos, lanas y fragancias que cumplen con altos estándares de textura y aroma.</li>
+                            <li><strong>Presentación Impecable:</strong> Nos aseguramos de que cada artículo esté bien presentado y listo para su uso.</li>
+                            <li><strong>Confiabilidad:</strong> Trabajamos para ofrecerte productos que inspiren tus proyectos y cumplan tus expectativas reales.</li>
+                        </ul>
+                        <p className="text-center font-black text-graphite uppercase tracking-widest bg-gray-100 py-3 rounded-full border-2 border-graphite mt-4">
+                            Productos de calidad entre telas y fragancias
+                        </p>
+                    </div>
+                }
+            />
 
             {/* SPACER 2: Between Features and Footer */}
             <div className="w-full h-24 md:h-32 bg-lime"></div>

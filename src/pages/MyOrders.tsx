@@ -55,7 +55,7 @@ export default function MyOrders() {
 
     return (
         <>
-            <div className="min-h-screen bg-gray-50 pt-24 md:pt-32 pb-16 px-4 font-sans relative overflow-hidden">
+            <div className="min-h-screen bg-gray-50 pt-24 md:pt-32 pb-16 safe-mobile-margin font-sans relative overflow-hidden">
                 {/* Animated Background Icons */}
                 <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden hidden md:block">
                     {/* Top Left - Yarn */}
@@ -76,7 +76,7 @@ export default function MyOrders() {
                     </div>
                 </div>
 
-                <div className="max-w-7xl mx-auto relative z-10 px-4 md:px-8 flex flex-col items-center">
+                <div className="max-w-7xl mx-auto relative z-10 safe-mobile-margin md:px-8 flex flex-col items-center">
                     <div className="flex flex-col items-center justify-center relative mb-24 md:mb-32 no-print gap-4 w-full">
                         <div className="h-10 md:h-10"></div>
                         {/* Desktop Back Button - Positioned relative to container but improved */}
@@ -127,8 +127,15 @@ export default function MyOrders() {
                                                     <div className="font-black text-graphite">Pedido #{order.id.toString().padStart(6, '0')}</div>
                                                     <div className="text-xs text-gray-400 font-bold">{new Date(order.created_at).toLocaleDateString()}</div>
                                                 </div>
-                                                <span className={`shrink-0 inline-block px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${order.status === 'pending' ? 'bg-yellow-100 text-yellow-700 border-yellow-200' : order.status === 'confirmed' ? 'bg-blue-100 text-blue-700 border-blue-200' : order.status === 'completed' ? 'bg-teal/10 text-teal border-teal/20' : 'bg-gray-100 text-gray-700 border-gray-200'}`}>
-                                                    {order.status === 'pending' ? 'Pendiente' : order.status === 'confirmed' ? 'Confirmado' : order.status}
+                                                <span className={`shrink-0 inline-block px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${order.status === 'pending' ? 'bg-yellow-100 text-yellow-700 border-yellow-200' :
+                                                    order.status === 'confirmed' ? 'bg-blue-100 text-blue-700 border-blue-200' :
+                                                        order.status === 'completed' ? 'bg-teal/10 text-teal border-teal/20' :
+                                                            order.status === 'rejected' ? 'bg-red-100 text-red-700 border-red-200' :
+                                                                'bg-gray-100 text-gray-700 border-gray-200'}`}>
+                                                    {order.status === 'pending' ? 'Pendiente' :
+                                                        order.status === 'confirmed' ? 'Confirmado' :
+                                                            order.status === 'completed' ? 'Completado' :
+                                                                order.status === 'rejected' ? 'Rechazado' : order.status}
                                                 </span>
                                             </div>
                                             <div className="mt-3 grid grid-cols-2 gap-2 text-xs font-bold text-gray-500">
@@ -176,8 +183,15 @@ export default function MyOrders() {
                                                         <div className="text-xs text-gray-400 font-bold">{new Date(order.created_at).toLocaleDateString()}</div>
                                                     </td>
                                                     <td className="py-4 px-6">
-                                                        <span className={`inline-block px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest border ${order.status === 'pending' ? 'bg-yellow-100 text-yellow-700 border-yellow-200' : order.status === 'confirmed' ? 'bg-blue-100 text-blue-700 border-blue-200' : order.status === 'completed' ? 'bg-teal/10 text-teal border-teal/20' : 'bg-gray-100 text-gray-700 border-gray-200'}`}>
-                                                            {order.status === 'pending' ? 'Pendiente' : order.status === 'confirmed' ? 'Confirmado' : order.status}
+                                                        <span className={`inline-block px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest border ${order.status === 'pending' ? 'bg-yellow-100 text-yellow-700 border-yellow-200' :
+                                                            order.status === 'confirmed' ? 'bg-blue-100 text-blue-700 border-blue-200' :
+                                                                order.status === 'completed' ? 'bg-teal/10 text-teal border-teal/20' :
+                                                                    order.status === 'rejected' ? 'bg-red-100 text-red-700 border-red-200' :
+                                                                        'bg-gray-100 text-gray-700 border-gray-200'}`}>
+                                                            {order.status === 'pending' ? 'Pendiente' :
+                                                                order.status === 'confirmed' ? 'Confirmado' :
+                                                                    order.status === 'completed' ? 'Completado' :
+                                                                        order.status === 'rejected' ? 'Rechazado' : order.status}
                                                         </span>
                                                     </td>
                                                     <td className="py-4 px-6 text-gray-500">
@@ -248,7 +262,12 @@ export default function MyOrders() {
                                 </div>
                                 <div>
                                     <p className="text-xs font-black uppercase tracking-widest text-gray-400">Estado</p>
-                                    <p className="font-black text-graphite">{selectedOrder!.status === 'pending' ? 'Pendiente' : selectedOrder!.status === 'confirmed' ? 'Confirmado' : selectedOrder!.status}</p>
+                                    <p className="font-black text-graphite">
+                                        {selectedOrder!.status === 'pending' ? 'Pendiente' :
+                                            selectedOrder!.status === 'confirmed' ? 'Confirmado' :
+                                                selectedOrder!.status === 'completed' ? 'Completado' :
+                                                    selectedOrder!.status === 'rejected' ? 'Rechazado' : selectedOrder!.status}
+                                    </p>
                                 </div>
                                 <div>
                                     <p className="text-xs font-black uppercase tracking-widest text-gray-400">Envío</p>

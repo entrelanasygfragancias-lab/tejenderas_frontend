@@ -6,7 +6,7 @@ interface LogoProps extends ImgHTMLAttributes<HTMLImageElement> {
 
 export default function Logo({ className = "w-20 h-20", ...props }: LogoProps) {
     return (
-        <div className={`${className} bg-transparent flex items-center justify-center overflow-hidden rounded-full p-1`}>
+        <div className={`${className} bg-transparent flex items-center justify-center`}>
             <img
                 src="/logo_original.png"
                 alt="Logo Entre Lanas"

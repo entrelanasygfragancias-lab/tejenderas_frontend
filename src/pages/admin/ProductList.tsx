@@ -54,7 +54,6 @@ export default function ProductList() {
     const [selectedSubcategoryId, setSelectedSubcategoryId] = useState<number | 'all'>('all');
     const [dbCategories, setDbCategories] = useState<DbCategory[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
-    const [isSearchFocused, setIsSearchFocused] = useState(false);
 
     const isPerfumCat = (catId?: number) => {
         if (!catId) return false;
@@ -257,21 +256,36 @@ export default function ProductList() {
     return (
         <AdminLayout
             title="Inventario"
-            subtitle="Gestiona tus productos"
-            titleWrapperClassName="translate-x-6 md:translate-x-12"
+            subtitle="Control total de existencias y productos"
             actions={
-                <Link
-                    to="/admin/products/new"
-                    className="px-6 py-3 bg-pink-hot hover:bg-pink-600 text-white font-black uppercase tracking-widest rounded-xl border-2 border-graphite shadow-[4px_4px_0px_0px_#333] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_#333] transition-all flex items-center gap-2"
-                >
-                    <span className="text-xl">+</span> Nuevo Producto
-                </Link>
+                <div className="flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto">
+                    <div className="flex items-center gap-3 w-full sm:w-80 md:w-[480px]">
+                        <div className="bg-white p-3.5 rounded-xl border-2 border-graphite shadow-[2px_2px_0px_0px_#333] hidden sm:block">
+                            <svg className="h-6 w-6 text-graphite" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                        </div>
+                        <input
+                            type="text"
+                            placeholder="Buscar productos..."
+                            className="flex-1 px-4 py-4 bg-white border-2 border-graphite rounded-xl text-base font-bold placeholder-gray-400 focus:outline-none focus:border-pink-hot transition-all shadow-[2px_2px_0px_0px_#333]"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                    </div>
+                    <Link
+                        to="/admin/products/new"
+                        className="w-full sm:w-auto px-6 py-4 bg-pink-hot hover:bg-pink-600 text-white font-black uppercase tracking-widest rounded-xl border-2 border-graphite shadow-[4px_4px_0px_0px_#333] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_#333] transition-all flex items-center justify-center gap-2 text-sm"
+                    >
+                        <span className="text-xl">+</span> Nuevo Producto
+                    </Link>
+                </div>
             }
         >
 
             <div className="flex flex-col items-center w-full">
                 {/* Title Spacer */}
-                <div className="h-6 md:h-8 w-full block"></div>
+                <div className="h-10 md:h-16 w-full block"></div>
 
                 {error && (
                     <div className="w-[90%] md:w-full max-w-6xl mx-auto bg-red-pink/10 border-2 border-red-pink text-red-pink px-4 py-3 rounded-xl mb-6 font-bold flex items-center gap-2">
@@ -360,27 +374,6 @@ export default function ProductList() {
                     )}
                 </div>
 
-                {/* Search Input */}
-                <div className="w-[90%] md:w-full max-w-6xl mx-auto mb-8">
-                    <div className="relative">
-                        {!searchTerm && !isSearchFocused && (
-                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none select-none">
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                </svg>
-                            </span>
-                        )}
-                        <input
-                            type="text"
-                            placeholder={searchTerm || isSearchFocused ? 'Buscar por nombre o código...' : ''}
-                            className="w-full pl-12 pr-4 py-4 bg-white border-4 border-graphite rounded-2xl text-lg font-bold placeholder-gray-400 focus:outline-none focus:border-pink-hot transition-colors shadow-[4px_4px_0px_0px_#333]"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            onFocus={() => setIsSearchFocused(true)}
-                            onBlur={() => setIsSearchFocused(false)}
-                        />
-                    </div>
-                </div>
 
                 {isLoading ? (
                     <div className="text-center py-20">
@@ -422,7 +415,6 @@ export default function ProductList() {
                                             <th className="py-4 text-center text-xs font-black text-gray-300 uppercase tracking-wider" style={{ paddingLeft: '1.2rem', paddingRight: '1.2rem', minWidth: '90px' }}>Stock</th>
                                             <th className="py-4 text-center text-xs font-black text-gray-300 uppercase tracking-wider" style={{ paddingLeft: '1.2rem', paddingRight: '1.2rem', minWidth: '90px' }}>Entradas</th>
                                             <th className="py-4 text-center text-xs font-black text-gray-300 uppercase tracking-wider" style={{ paddingLeft: '1.2rem', paddingRight: '1.2rem', minWidth: '90px' }}>Salidas</th>
-                                            <th className="py-4 text-center text-xs font-black text-gray-300 uppercase tracking-wider" style={{ paddingLeft: '2.5rem', paddingRight: '2.5rem', minWidth: '180px' }}>Totales Variantes</th>
                                             <th className="px-6 py-4 text-right text-xs font-black text-gray-300 uppercase tracking-wider">Acciones</th>
                                         </tr>
                                     </thead>
@@ -486,13 +478,6 @@ export default function ProductList() {
                                                 </td>
                                                 <td className="py-4 whitespace-nowrap text-center text-sm font-black text-red-pink" style={{ paddingLeft: '0.5rem', paddingRight: '0.5rem' }}>
                                                     {item.stock_out_total ?? item.sold_quantity ?? 0}
-                                                </td>
-                                                <td className="py-4 whitespace-nowrap text-center text-xs font-black text-blue-700" style={{ paddingLeft: '3rem', paddingRight: '3rem' }}>
-                                                    {(() => {
-                                                        const totals = getVariantTotals(item);
-                                                        if (totals.in === 0 && totals.out === 0) return 'Sin movimientos';
-                                                        return `E ${totals.in} / S ${totals.out}`;
-                                                    })()}
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                                     <div className="flex justify-end gap-2">
@@ -635,7 +620,16 @@ export default function ProductList() {
                     </div>
                 )
                 }
-                <div className="h-12 md:h-16"></div>
+                {/* Integrated Footer Area */}
+                <div className="pt-12 md:pt-96 pb-24 md:pb-48 text-center space-y-8 md:space-y-12 w-full">
+                    <div className="flex justify-center gap-4 opacity-10">
+                        <div className="w-12 h-1.5 bg-pink-hot rounded-full"></div>
+                        <div className="w-12 h-1.5 bg-teal rounded-full"></div>
+                    </div>
+                    <p className="text-gray-400 text-[10px] sm:text-[14px] font-black uppercase tracking-[0.4em] md:tracking-[0.8em] max-w-5xl mx-auto leading-relaxed opacity-40 italic">
+                        SISTEMA CENTRAL DE GESTIÓN VISUAL • VERSIÓN 2.5
+                    </p>
+                </div>
             </div>
         </AdminLayout >
     );

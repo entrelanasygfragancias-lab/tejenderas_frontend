@@ -88,6 +88,19 @@ export default function AdminOrders() {
         }
     };
 
+    const handleRejectOrder = async (orderId: number) => {
+        if (!window.confirm('¿Estás seguro de que deseas rechazar este pedido?')) return;
+        try {
+            setUpdatingOrderId(orderId);
+            await api.patch(`/admin/orders/${orderId}/status`, { status: 'rejected' });
+            await fetchOrders();
+        } catch (error) {
+            console.error('Error rejecting order:', error);
+        } finally {
+            setUpdatingOrderId(null);
+        }
+    };
+
     const filteredOrders = selectedStatus === 'all'
         ? orders.filter(order => order.status !== 'completed')
         : orders.filter(order => order.status === selectedStatus);
@@ -104,37 +117,30 @@ export default function AdminOrders() {
 
     return (
         <AdminLayout
-            title="Pedidos de Clientes"
-            subtitle="Gestiona y revisa los pedidos realizados"
-            titleWrapperClassName="translate-x-6 md:translate-x-12"
-            mainWrapperClassName="px-10 md:px-10"
+            title="Gestión de Pedidos"
+            subtitle="Revisa y procesa las compras realizadas por tus clientes"
             actions={
-                <div className="flex flex-wrap gap-4 bg-white p-1 rounded-xl border border-gray-200 shadow-sm w-full md:w-auto justify-center md:justify-start">
-                    {['all', 'pending', 'confirmed', 'completed'].map((status) => (
+                <div className="flex flex-wrap gap-3 bg-white p-2 rounded-2xl border-2 border-gray-100 shadow-sm w-full md:w-auto justify-center">
+                    {['all', 'pending', 'confirmed', 'completed', 'rejected'].map((status) => (
                         <button
                             key={status}
                             onClick={() => setSelectedStatus(status)}
-                            className={`flex-1 md:flex-none px-4 py-2 rounded-lg text-sm font-bold uppercase tracking-wide transition-all ${selectedStatus === status
+                            className={`px-6 py-2 rounded-xl text-sm font-black uppercase tracking-widest transition-all ${selectedStatus === status
                                 ? 'bg-graphite text-white shadow-md'
-                                : 'text-gray-500 hover:bg-gray-50'
+                                : 'text-gray-400 hover:text-graphite hover:bg-gray-50'
                                 }`}
                         >
-                            {status === 'all'
-                                ? 'Todos'
-                                : status === 'pending'
-                                    ? 'Pendientes'
-                                    : status === 'confirmed'
-                                        ? 'Confirmados'
-                                        : 'Completados'}
+                            {status === 'all' ? 'Todos' :
+                                status === 'pending' ? 'Pendientes' :
+                                    status === 'confirmed' ? 'Confirmados' :
+                                        status === 'completed' ? 'Entregados' : 'Rechazados'}
                         </button>
                     ))}
                 </div>
             }
         >
-            <div className="flex flex-col items-center w-full mt-8 md:mt-10">
-                {selectedStatus !== 'completed' && (
-                    <div className="h-8 md:h-12"></div>
-                )}
+            <div className="flex flex-col items-center w-full">
+                <div className="h-10 md:h-16"></div>
                 {isLoading ? (
                     <div className="flex justify-center py-20">
                         <div className="animate-spin w-12 h-12 border-4 border-pink-hot border-t-transparent rounded-full"></div>
@@ -156,9 +162,13 @@ export default function AdminOrders() {
                                                     <span className={`px-3 py-1 md:px-5 md:py-2 rounded-full text-xs md:text-base font-black uppercase tracking-widest border ${order.status === 'pending' ? 'bg-yellow-100 text-yellow-700 border-yellow-200' :
                                                         order.status === 'confirmed' ? 'bg-blue-100 text-blue-700 border-blue-200' :
                                                             order.status === 'completed' ? 'bg-green-100 text-green-700 border-green-200' :
-                                                                'bg-gray-100 text-gray-700 border-gray-200'
+                                                                order.status === 'rejected' ? 'bg-red-100 text-red-700 border-red-200' :
+                                                                    'bg-gray-100 text-gray-700 border-gray-200'
                                                         }`}>
-                                                        {order.status}
+                                                        {order.status === 'pending' ? 'Pendiente' :
+                                                            order.status === 'confirmed' ? 'Confirmado' :
+                                                                order.status === 'completed' ? 'Completado' :
+                                                                    order.status === 'rejected' ? 'Rechazado' : order.status}
                                                     </span>
                                                 </h3>
                                                 <p className="text-gray-400 text-base md:text-lg font-bold mt-2">
@@ -244,14 +254,24 @@ export default function AdminOrders() {
                                                         </p>
                                                     )}
                                                     {order.status === 'pending' && (
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => handleConfirmPayment(order.id)}
-                                                            disabled={updatingOrderId === order.id}
-                                                            className="mt-3 w-full bg-blue-600 hover:bg-blue-700 text-white font-black text-center py-2 md:py-3 rounded-xl border-2 border-graphite transition-colors uppercase tracking-wide text-xs disabled:opacity-60 disabled:cursor-not-allowed"
-                                                        >
-                                                            {updatingOrderId === order.id ? 'Confirmando...' : 'Confirmar pago'}
-                                                        </button>
+                                                        <div className="flex flex-col gap-2 mt-3">
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => handleConfirmPayment(order.id)}
+                                                                disabled={updatingOrderId === order.id}
+                                                                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black text-center py-2 md:py-3 rounded-xl border-2 border-graphite transition-colors uppercase tracking-wide text-xs disabled:opacity-60 disabled:cursor-not-allowed"
+                                                            >
+                                                                {updatingOrderId === order.id ? 'Confirmando...' : 'Confirmar pago'}
+                                                            </button>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => handleRejectOrder(order.id)}
+                                                                disabled={updatingOrderId === order.id}
+                                                                className="w-full bg-red-500 hover:bg-red-600 text-white font-black text-center py-2 md:py-3 rounded-xl border-2 border-graphite transition-colors uppercase tracking-wide text-xs disabled:opacity-60 disabled:cursor-not-allowed"
+                                                            >
+                                                                {updatingOrderId === order.id ? 'Actualizando...' : 'Rechazar pedido'}
+                                                            </button>
+                                                        </div>
                                                     )}
                                                     {order.status === 'confirmed' && (
                                                         <button
@@ -394,7 +414,16 @@ export default function AdminOrders() {
                         </div>
                     </div>
                 </div>
-                <div className="h-12 md:h-16"></div>
+                {/* Integrated Footer Area */}
+                <div className="pt-12 md:pt-96 pb-24 md:pb-48 text-center space-y-8 md:space-y-12 w-full">
+                    <div className="flex justify-center gap-4 opacity-10">
+                        <div className="w-12 h-1.5 bg-pink-hot rounded-full"></div>
+                        <div className="w-12 h-1.5 bg-teal rounded-full"></div>
+                    </div>
+                    <p className="text-gray-400 text-[10px] sm:text-[14px] font-black uppercase tracking-[0.4em] md:tracking-[0.8em] max-w-5xl mx-auto leading-relaxed opacity-40 italic">
+                        SISTEMA CENTRAL DE GESTIÓN VISUAL • VERSIÓN 2.5
+                    </p>
+                </div>
             </div>
             {selectedHistoryOrder && (() => {
                 const order = selectedHistoryOrder;

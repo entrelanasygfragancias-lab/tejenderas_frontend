@@ -16,7 +16,7 @@ export default function Footer() {
                 <div className="absolute -top-24 -right-24 w-96 h-96 bg-pink-hot rounded-full blur-[100px] opacity-20"></div>
                 <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-teal rounded-full blur-[100px] opacity-20"></div>
 
-                <div className="max-w-360 mx-auto px-6 md:px-12 relative z-10 flex flex-col items-center">
+                <div className="max-w-360 mx-auto safe-mobile-margin md:px-12 relative z-10 flex flex-col items-center">
 
                     {/* Top Section: Brand */}
                     <div className="flex flex-col items-center mb-24 max-md:mb-16">

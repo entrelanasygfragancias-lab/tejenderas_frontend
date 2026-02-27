@@ -417,9 +417,8 @@ export default function POS() {
 
     return (
         <AdminLayout
-            title="Punto de Venta"
-            subtitle="Registrar ventas"
-            titleWrapperClassName="translate-x-6 md:translate-x-12"
+            title="Terminal Punto de Venta"
+            subtitle="Registro rápido de ventas presenciales"
         >
             <div className="flex flex-col items-center w-full">
                 <div className="h-6 md:h-8"></div>
@@ -987,6 +986,16 @@ export default function POS() {
                                 </>
                             )}
                         </div>
+                    </div>
+                    {/* Integrated Footer Area */}
+                    <div className="pt-12 md:pt-96 pb-24 md:pb-48 text-center space-y-8 md:space-y-12 w-full">
+                        <div className="flex justify-center gap-4 opacity-10">
+                            <div className="w-12 h-1.5 bg-pink-hot rounded-full"></div>
+                            <div className="w-12 h-1.5 bg-teal rounded-full"></div>
+                        </div>
+                        <p className="text-gray-400 text-[10px] sm:text-[14px] font-black uppercase tracking-[0.4em] md:tracking-[0.8em] max-w-5xl mx-auto leading-relaxed opacity-40 italic">
+                            SISTEMA CENTRAL DE GESTIÓN VISUAL • VERSIÓN 2.5
+                        </p>
                     </div>
                 </div>
             </div>

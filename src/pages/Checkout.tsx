@@ -109,7 +109,7 @@ export default function Checkout() {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 py-12 px-4 flex justify-center relative overflow-hidden">
+        <div className="min-h-screen bg-gray-50 py-12 safe-mobile-margin flex justify-center relative overflow-hidden">
             {/* Animated Background Icons */}
             <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
                 {/* Top Left - Yarn */}

@@ -33,7 +33,7 @@ export default function Login() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-graphite relative overflow-hidden">
+        <div className="min-h-screen bg-gray-50 py-12 safe-mobile-margin flex justify-center relative overflow-hidden">
             {/* Back to home button */}
             <div className="absolute top-6 left-6 z-50">
                 <Link
@@ -51,7 +51,7 @@ export default function Login() {
                 <div className="absolute bottom-10 right-10 w-96 h-96 bg-teal rounded-full blur-3xl"></div>
             </div>
 
-            <div className="w-full max-w-2xl px-4 relative z-10">
+            <div className="w-full max-md:safe-mobile-margin px-6 relative z-10">
                 <div className="text-center mb-6 flex flex-col items-center">
                     <Logo className="w-44 h-44 max-md:w-32 max-md:h-32 mb-4 drop-shadow-2xl filter hover:scale-105 transition-transform duration-300 mx-auto" />
                     <h1 className="text-5xl max-md:text-4xl font-black text-white mb-2 tracking-tighter">
