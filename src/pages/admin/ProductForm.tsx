@@ -2,10 +2,12 @@ import { useState, type FormEvent, useRef, useEffect } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import Barcode from 'react-barcode';
 import { useReactToPrint } from 'react-to-print';
+import { Html5Qrcode, Html5QrcodeSupportedFormats } from 'html5-qrcode';
 import api from '../../api';
 import { AxiosError } from 'axios';
 import { getStorageUrl } from '../../utils/imageUrl';
 import AdminLayout from '../../components/AdminLayout';
+import toast from 'react-hot-toast';
 
 
 interface VariantConfig {
@@ -40,6 +42,9 @@ export default function ProductForm() {
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [isChecking, setIsChecking] = useState(false);
+    const [isScanning, setIsScanning] = useState(false);
+    const [scanError, setScanError] = useState('');
+    const html5QrCodeRef = useRef<Html5Qrcode | null>(null);
     const [categories, setCategories] = useState<{ id: number; name: string; slug: string; subcategories?: { id: number; name: string }[] }[]>([]);
     const [allAttributes, setAllAttributes] = useState<{ id: number; name: string; values: any[] }[]>([]);
     const [selectedCategoryId, setSelectedCategoryId] = useState<number | ''>('');
@@ -60,7 +65,21 @@ export default function ProductForm() {
         if (id) {
             fetchProduct();
         }
+
+        return () => {
+            if (html5QrCodeRef.current?.isScanning) {
+                html5QrCodeRef.current.stop().catch(console.error);
+            }
+        };
     }, [id]);
+
+    useEffect(() => {
+        if (isScanning) {
+            startScanner();
+        } else {
+            stopScanner();
+        }
+    }, [isScanning]);
 
     const fetchInitialData = async () => {
         try {
@@ -75,50 +94,53 @@ export default function ProductForm() {
         }
     };
 
+    const populateFromProduct = (data: any) => {
+        setName(data.name || '');
+        setBarcode(data.barcode || '');
+        setSelectedCategoryId(data.category_id || '');
+        setSelectedSubcategoryId(data.subcategory_id || '');
+        setBrand(data.brand || '');
+        setIsPromo(Boolean(data.is_promo));
+        setIsCombo(Boolean(data.is_combo));
+        setDescription(data.description || '');
+        setStock(data.stock?.toString() || '0');
+        setBasePrice(data.base_price?.toString() || '0');
+        setPrice(data.price?.toString() || '0');
+        setMarkup(data.markup?.toString() || '30');
+        setMarkupType(data.markup_type || 'percentage');
+
+        if (data.image) {
+            setMainImagePreview(getStorageUrl(data.image));
+        }
+
+        if (data.images && Array.isArray(data.images)) {
+            setGalleryImagePreviews(data.images.map((img: string) => getStorageUrl(img)));
+        }
+
+        if (data.attributes) {
+            setProductAttributes(data.attributes.map((a: any) => a.id));
+        }
+        if (data.attribute_values) {
+            const loadedValues = data.attribute_values.map((v: any) => ({
+                id: v.id,
+                name: v.name,
+                basePrice: v.pivot.base_price?.toString() || '0',
+                markupType: v.pivot.markup_type || 'percentage',
+                markup: v.pivot.markup?.toString() || '0',
+                price: v.pivot.price_delta?.toString() || '0',
+                stock: v.pivot.stock?.toString() || '0',
+                image: v.pivot.image,
+                imagePreview: getStorageUrl(v.pivot.image)
+            }));
+            setProductAttributeValues(loadedValues);
+        }
+    };
+
     const fetchProduct = async () => {
         setIsLoading(true);
         try {
             const { data } = await api.get(`/admin/products/${id}`);
-            setName(data.name);
-            setBarcode(data.barcode);
-            setSelectedCategoryId(data.category_id || '');
-            setSelectedSubcategoryId(data.subcategory_id || '');
-            setBrand(data.brand || '');
-            setIsPromo(Boolean(data.is_promo));
-            setIsCombo(Boolean(data.is_combo));
-            setDescription(data.description || '');
-            setStock(data.stock?.toString() || '0');
-            setBasePrice(data.base_price?.toString() || '0');
-            setPrice(data.price?.toString() || '0');
-            setMarkup(data.markup?.toString() || '30');
-            setMarkupType(data.markup_type || 'percentage');
-
-            if (data.image) {
-                setMainImagePreview(getStorageUrl(data.image));
-            }
-
-            if (data.images && Array.isArray(data.images)) {
-                setGalleryImagePreviews(data.images.map((img: string) => getStorageUrl(img)));
-            }
-
-            if (data.attributes) {
-                setProductAttributes(data.attributes.map((a: any) => a.id));
-            }
-            if (data.attribute_values) {
-
-                const loadedValues = data.attribute_values.map((v: any) => ({
-                    id: v.id,
-                    name: v.name,
-                    basePrice: v.pivot.base_price?.toString() || '0',
-                    markupType: v.pivot.markup_type || 'percentage',
-                    markup: v.pivot.markup?.toString() || '0',
-                    price: v.pivot.price_delta?.toString() || '0',
-                    stock: v.pivot.stock?.toString() || '0',
-                    image: v.pivot.image,
-                    imagePreview: getStorageUrl(v.pivot.image)
-                }));
-                setProductAttributeValues(loadedValues);
-            }
+            populateFromProduct(data);
         } catch (err) {
             setError('Error al cargar el producto');
             console.error(err);
@@ -146,7 +168,13 @@ export default function ProductForm() {
         try {
             const { data } = await api.get<{ exists: boolean; product?: any }>(`/admin/products/check/${code}`);
             if (data.exists && (!isEditing || data.product.id !== parseInt(id!))) {
-                setError('Este código de barras ya está registrado para: ' + data.product.name);
+                if (!isEditing) {
+                    toast.success('Producto encontrado, cargando información...');
+                    populateFromProduct(data.product);
+                    setError('');
+                } else {
+                    setError('Este código de barras ya está registrado para: ' + data.product.name);
+                }
             } else {
                 setError('');
             }
@@ -155,6 +183,63 @@ export default function ProductForm() {
         } finally {
             setIsChecking(false);
         }
+    };
+
+    const startScanner = async () => {
+        try {
+            const scanner = new Html5Qrcode("reader");
+            html5QrCodeRef.current = scanner;
+
+            const config = {
+                fps: 10,
+                qrbox: { width: 250, height: 150 },
+                aspectRatio: 1.0,
+                formatsToSupport: [
+                    Html5QrcodeSupportedFormats.CODE_128,
+                    Html5QrcodeSupportedFormats.CODE_39,
+                    Html5QrcodeSupportedFormats.EAN_13,
+                    Html5QrcodeSupportedFormats.EAN_8,
+                    Html5QrcodeSupportedFormats.UPC_A,
+                    Html5QrcodeSupportedFormats.UPC_E,
+                    Html5QrcodeSupportedFormats.ITF,
+                    Html5QrcodeSupportedFormats.QR_CODE,
+                ]
+            };
+
+            await scanner.start(
+                { facingMode: "environment" },
+                config,
+                (decodedText) => {
+                    handleScannedCode(decodedText);
+                },
+                undefined
+            );
+            setScanError('');
+        } catch (err) {
+            console.error("No se pudo iniciar el escáner:", err);
+            setScanError("No se pudo acceder a la cámara o el elemento 'reader' no está listo.");
+        }
+    };
+
+    const stopScanner = async () => {
+        if (html5QrCodeRef.current?.isScanning) {
+            try {
+                await html5QrCodeRef.current.stop();
+                html5QrCodeRef.current = null;
+            } catch (err) {
+                console.error("Error deteniendo escáner:", err);
+            }
+        }
+    };
+
+    const handleScannedCode = (code: string) => {
+        const normalized = code?.trim();
+        if (!normalized) return;
+
+        setBarcode(normalized);
+        setIsScanning(false);
+        setScanError('');
+        checkBarcode(normalized);
     };
 
     const generateBarcode = async () => {
@@ -503,6 +588,14 @@ export default function ProductForm() {
                                                             </div>
                                                         )}
                                                     </div>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setIsScanning(true)}
+                                                        className="px-6 bg-teal/10 text-teal hover:bg-teal hover:text-white rounded-[1.25rem] font-black uppercase text-[11px] tracking-widest transition-all border-2 border-teal/20 hover:border-transparent active:scale-95 shadow-sm"
+                                                        title="Escanear Código"
+                                                    >
+                                                        📷
+                                                    </button>
                                                     <button
                                                         type="button"
                                                         onClick={generateBarcode}
@@ -1117,6 +1210,53 @@ export default function ProductForm() {
                     </div>
                 )}
             </div>
+
+            {/* Camera Scanner Modal */}
+            {isScanning && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
+                    <div className="bg-white rounded-[2.5rem] p-8 md:p-12 w-full max-w-lg relative border-4 border-graphite shadow-2xl animate-in zoom-in-95 duration-300">
+                        <button
+                            onClick={() => {
+                                setScanError('');
+                                setIsScanning(false);
+                            }}
+                            className="absolute top-8 right-8 text-gray-400 hover:text-red-pink transition-all z-10 hover:rotate-90"
+                        >
+                            <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+
+                        <div className="flex flex-col items-center mb-10">
+                            <div className="w-20 h-20 bg-teal/10 rounded-3xl flex items-center justify-center text-4xl mb-6 shadow-inner ring-4 ring-teal/5">📷</div>
+                            <h3 className="text-3xl font-black text-graphite text-center uppercase tracking-widest leading-none">Escáner de Productos</h3>
+                            <p className="text-gray-400 font-bold text-[10px] uppercase tracking-[0.3em] mt-3">Identificación instantánea</p>
+                        </div>
+
+                        {scanError && (
+                            <div className="mb-8 bg-red-pink/10 border-2 border-red-pink/20 text-red-pink px-6 py-4 rounded-2xl font-bold text-sm flex items-center gap-3 animate-pulse">
+                                <span>⚠️</span> {scanError}
+                            </div>
+                        )}
+
+                        <div className="rounded-[2rem] overflow-hidden border-4 border-graphite bg-black aspect-square relative shadow-2xl" id="reader">
+                            {/* Html5Qrcode will render here */}
+                            <div className="absolute inset-0 border-[60px] border-black/20 pointer-events-none"></div>
+                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4/5 h-1 bg-pink-hot/50 blur-sm animate-bounce"></div>
+                        </div>
+
+                        <div className="mt-10 flex flex-col items-center gap-4">
+                            <p className="text-center text-gray-500 font-black uppercase tracking-[0.2em] text-[10px]">Apunta el código a la cámara</p>
+                            <button
+                                onClick={() => setIsScanning(false)}
+                                className="px-10 py-4 bg-gray-50 text-gray-500 font-black uppercase tracking-widest text-[10px] rounded-2xl border-2 border-gray-100 hover:bg-gray-100 transition-all"
+                            >
+                                Cancelar Captura
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </AdminLayout>
     );
 }
