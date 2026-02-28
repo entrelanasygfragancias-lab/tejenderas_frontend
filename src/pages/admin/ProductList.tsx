@@ -47,7 +47,7 @@ export default function ProductList() {
     const [stockModalProduct, setStockModalProduct] = useState<Product | null>(null);
     const [stockModalQty, setStockModalQty] = useState('');
     const [isStockSaving, setIsStockSaving] = useState(false);
-    const [stockModalVariants, setStockModalVariants] = useState<Record<string, string>>({});
+    const [selectedVariantIds, setSelectedVariantIds] = useState<string[]>([]);
 
     const [currentCategory, setCurrentCategory] = useState('todos');
     const [selectedDbCategoryId, setSelectedDbCategoryId] = useState<number | null>(null);
@@ -96,6 +96,8 @@ export default function ProductList() {
                 variantName: av.attribute ? `${av.attribute.name}: ${av.name}` : av.name,
                 price: av.pivot?.price_delta || p.price,
                 stock: av.pivot?.stock ?? 0,
+                stock_in_total: av.pivot?.stock_in_total ?? 0,
+                stock_out_total: av.pivot?.stock_out_total ?? 0,
                 isVariant: true,
                 variantAttributeId: av.attribute?.id,
                 variantValueId: av.id
@@ -147,11 +149,11 @@ export default function ProductList() {
     const openStockModal = (item: any) => {
         setStockModalProduct(item);
         setStockModalQty('');
-        const initialVars: Record<string, string> = {};
-        if (item.isVariant && item.variantAttributeId) {
-            initialVars[String(item.variantAttributeId)] = String(item.variantValueId);
+        if (item.isVariant && item.variantValueId) {
+            setSelectedVariantIds([String(item.variantValueId)]);
+        } else {
+            setSelectedVariantIds([]);
         }
-        setStockModalVariants(initialVars);
         setError('');
     };
 
@@ -159,7 +161,7 @@ export default function ProductList() {
         if (isStockSaving) return;
         setStockModalProduct(null);
         setStockModalQty('');
-        setStockModalVariants({});
+        setSelectedVariantIds([]);
     };
 
     const handleSaveStock = async () => {
@@ -170,31 +172,33 @@ export default function ProductList() {
             return;
         }
         const variantOptions = parseVariants(stockModalProduct.variants);
-        if (variantOptions.length > 0) {
-            const missing = variantOptions.some(opt => !stockModalVariants[opt.id]);
-            if (missing) {
-                setError('Selecciona todas las variantes.');
-                return;
-            }
+        if (variantOptions.length > 0 && selectedVariantIds.length === 0) {
+            setError('Selecciona al menos una variante.');
+            return;
         }
         const selections = variantOptions.length
             ? variantOptions.map(opt => {
-                const chosenId = stockModalVariants[opt.id];
-                const val = opt.values.find((v: { id: string; name: string; priceDelta?: string | number }) => String(v.id) === String(chosenId));
-                return { option: opt.name, value: val?.name || '', priceDelta: val?.priceDelta ?? 0 };
-            })
+                const vals = opt.values.filter((v: any) => selectedVariantIds.includes(String(v.id)));
+                if (vals.length === 0) return null;
+                return {
+                    option: opt.name,
+                    values: vals.map((v: any) => v.name).join(', ')
+                };
+            }).filter(Boolean)
             : undefined;
+
         setIsStockSaving(true);
         try {
             const { data } = await api.post(`/admin/products/${stockModalProduct.id}/stock-in`, {
                 quantity: qty,
                 ...(selections ? { variants: selections } : {}),
+                variant_value_ids: selectedVariantIds,
             });
             const updated = data?.product;
             setProducts(prev => prev.map(p => (p.id === stockModalProduct.id ? { ...p, ...updated } : p)));
             setStockModalProduct(null);
             setStockModalQty('');
-            setStockModalVariants({});
+            setSelectedVariantIds([]);
         } catch {
             setError('No se pudo registrar el ingreso.');
         } finally {
@@ -543,22 +547,64 @@ export default function ProductList() {
                                         />
                                         {stockModalProduct && parseVariants(stockModalProduct.variants).length > 0 && (
                                             <div style={{ marginTop: '1.5rem' }}>
-                                                <p className="font-black uppercase text-gray-400" style={{ fontSize: '0.7rem', letterSpacing: '0.1em', marginBottom: '0.75rem' }}>Selecciona variantes</p>
-                                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '1rem' }}>
+                                                <div className="flex items-center justify-between mb-3">
+                                                    <p className="font-black uppercase text-gray-400" style={{ fontSize: '0.7rem', letterSpacing: '0.1em' }}>Selecciona variantes</p>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            const allIds = parseVariants(stockModalProduct.variants).flatMap(opt => opt.values.map((v: any) => String(v.id)));
+                                                            setSelectedVariantIds(allIds);
+                                                        }}
+                                                        className="text-[10px] font-black text-teal uppercase tracking-widest hover:underline"
+                                                    >
+                                                        Seleccionar todas
+                                                    </button>
+                                                </div>
+                                                <div className="space-y-6">
                                                     {parseVariants(stockModalProduct.variants).map(option => (
-                                                        <div key={option.id} style={{ background: '#f9fafb', border: '2px solid #e5e7eb', borderRadius: '0.75rem', padding: '1rem' }}>
-                                                            <label className="block font-black uppercase text-gray-500" style={{ fontSize: '0.7rem', letterSpacing: '0.08em', marginBottom: '0.5rem' }}>{option.name}</label>
-                                                            <select
-                                                                value={stockModalVariants[option.id] || ''}
-                                                                onChange={(e) => setStockModalVariants(prev => ({ ...prev, [option.id]: e.target.value }))}
-                                                                className="w-full bg-white border-2 border-graphite rounded-xl font-bold text-graphite focus:outline-none focus:border-teal"
-                                                                style={{ padding: '0.65rem 1rem' }}
-                                                            >
-                                                                <option value="">Seleccione...</option>
-                                                                {option.values.map((v: { id: string; name: string }) => (
-                                                                    <option key={v.id} value={v.id}>{v.name}</option>
-                                                                ))}
-                                                            </select>
+                                                        <div key={option.id} className="p-4 bg-gray-50 border-2 border-gray-100 rounded-2xl">
+                                                            <div className="flex items-center justify-between mb-3">
+                                                                <label className="block font-black uppercase text-gray-500" style={{ fontSize: '0.7rem', letterSpacing: '0.08em' }}>{option.name}</label>
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => {
+                                                                        const optIds = option.values.map((v: any) => String(v.id));
+                                                                        const alreadyAll = optIds.every((id: string) => selectedVariantIds.includes(id));
+                                                                        if (alreadyAll) {
+                                                                            setSelectedVariantIds(prev => prev.filter(id => !optIds.includes(id)));
+                                                                        } else {
+                                                                            setSelectedVariantIds(prev => Array.from(new Set([...prev, ...optIds])));
+                                                                        }
+                                                                    }}
+                                                                    className="text-[9px] font-bold text-gray-400 uppercase tracking-widest hover:text-teal transition-colors"
+                                                                >
+                                                                    {option.values.every((v: any) => selectedVariantIds.includes(String(v.id))) ? 'Deseleccionar' : 'Marcar grupo'}
+                                                                </button>
+                                                            </div>
+                                                            <div className="flex flex-wrap gap-2">
+                                                                {option.values.map((v: { id: string; name: string }) => {
+                                                                    const isSelected = selectedVariantIds.includes(String(v.id));
+                                                                    return (
+                                                                        <button
+                                                                            key={v.id}
+                                                                            type="button"
+                                                                            onClick={() => {
+                                                                                setSelectedVariantIds(prev =>
+                                                                                    isSelected
+                                                                                        ? prev.filter(id => id !== String(v.id))
+                                                                                        : [...prev, String(v.id)]
+                                                                                );
+                                                                            }}
+                                                                            className={`px-4 py-2 rounded-xl text-xs font-bold uppercase transition-all border-2 ${isSelected
+                                                                                ? 'bg-teal text-white border-teal shadow-md active:scale-95'
+                                                                                : 'bg-white text-gray-400 border-gray-100 hover:border-gray-300'
+                                                                                }`}
+                                                                        >
+                                                                            {v.name}
+                                                                        </button>
+                                                                    );
+                                                                })}
+                                                            </div>
                                                         </div>
                                                     ))}
                                                 </div>
@@ -568,7 +614,7 @@ export default function ProductList() {
                                             <button
                                                 onClick={closeStockModal}
                                                 disabled={isStockSaving}
-                                                className="flex-1 bg-white hover:bg-gray-50 text-graphite font-bold border-2 border-graphite rounded-xl disabled:opacity-50"
+                                                className="flex-1 bg-white hover:bg-gray-50 text-graphite font-bold border-2 border-gray-100 rounded-xl disabled:opacity-50"
                                                 style={{ padding: '0.85rem' }}
                                             >
                                                 Cancelar
@@ -576,10 +622,10 @@ export default function ProductList() {
                                             <button
                                                 onClick={handleSaveStock}
                                                 disabled={isStockSaving}
-                                                className="flex-1 bg-teal hover:bg-teal-600 text-white font-black border-2 border-graphite rounded-xl disabled:opacity-50"
+                                                className="flex-1 bg-teal hover:bg-teal-600 text-white font-black border-2 border-teal shadow-xl shadow-teal-500/20 rounded-xl disabled:opacity-50 active:scale-95 transition-all"
                                                 style={{ padding: '0.85rem', fontSize: '1.1rem' }}
                                             >
-                                                {isStockSaving ? 'Guardando...' : 'Guardar'}
+                                                {isStockSaving ? 'Guardando...' : 'Guardar Ingreso'}
                                             </button>
                                         </div>
                                     </div>

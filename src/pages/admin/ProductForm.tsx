@@ -23,6 +23,8 @@ interface VariantConfig {
     image?: string | null;
 }
 
+const DRAFT_STORAGE_KEY = 'tejenderas_product_draft';
+
 export default function ProductForm() {
     const [barcode, setBarcode] = useState('');
     const [name, setName] = useState('');
@@ -40,7 +42,7 @@ export default function ProductForm() {
     const [galleryImageFiles, setGalleryImageFiles] = useState<File[]>([]);
     const [galleryImagePreviews, setGalleryImagePreviews] = useState<string[]>([]);
     const [error, setError] = useState('');
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
     const [isChecking, setIsChecking] = useState(false);
     const [isScanning, setIsScanning] = useState(false);
     const [scanError, setScanError] = useState('');
@@ -54,6 +56,8 @@ export default function ProductForm() {
 
     // Popup state
     const [configuringValue, setConfiguringValue] = useState<VariantConfig | null>(null);
+    const [quickAddValues, setQuickAddValues] = useState<Record<number, string>>({});
+    const draftRef = useRef<any>(null);
 
     const barcodeRef = useRef<HTMLDivElement>(null);
     const navigate = useNavigate();
@@ -70,6 +74,10 @@ export default function ProductForm() {
             if (html5QrCodeRef.current?.isScanning) {
                 html5QrCodeRef.current.stop().catch(console.error);
             }
+            // Final save on unmount if we have a draft pending
+            if (draftRef.current && !isEditing) {
+                localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(draftRef.current));
+            }
         };
     }, [id]);
 
@@ -81,6 +89,38 @@ export default function ProductForm() {
         }
     }, [isScanning]);
 
+    // Save draft to localStorage (excluding files/previews)
+    useEffect(() => {
+        if (isEditing || isLoading) return;
+
+        const draft = {
+            barcode, name, brand, isPromo, isCombo, description,
+            stock, basePrice, price, markupType, markup,
+            selectedCategoryId, selectedSubcategoryId,
+            productAttributes, productAttributeValues: productAttributeValues.map(v => ({
+                ...v, imageFile: null, imagePreview: null // Don't store images in localStorage
+            }))
+        };
+        draftRef.current = draft;
+
+        const timer = setTimeout(() => {
+            localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(draft));
+        }, 500);
+
+        return () => {
+            clearTimeout(timer);
+        };
+    }, [
+        barcode, name, brand, isPromo, isCombo, description,
+        stock, basePrice, price, markupType, markup,
+        selectedCategoryId, selectedSubcategoryId,
+        productAttributes, productAttributeValues, isEditing, isLoading
+    ]);
+
+    const clearDraft = () => {
+        localStorage.removeItem(DRAFT_STORAGE_KEY);
+    };
+
     const fetchInitialData = async () => {
         try {
             const [catsRes, attrsRes] = await Promise.all([
@@ -89,8 +129,37 @@ export default function ProductForm() {
             ]);
             setCategories(catsRes.data);
             setAllAttributes(attrsRes.data);
+
+            // Load draft if not editing
+            if (!isEditing) {
+                const savedDraft = localStorage.getItem(DRAFT_STORAGE_KEY);
+                if (savedDraft) {
+                    try {
+                        const draft = JSON.parse(savedDraft);
+                        if (draft.name) setName(draft.name);
+                        if (draft.barcode) setBarcode(draft.barcode);
+                        if (draft.brand) setBrand(draft.brand);
+                        if (draft.isPromo !== undefined) setIsPromo(draft.isPromo);
+                        if (draft.isCombo !== undefined) setIsCombo(draft.isCombo);
+                        if (draft.description) setDescription(draft.description);
+                        if (draft.stock) setStock(draft.stock);
+                        if (draft.basePrice) setBasePrice(draft.basePrice);
+                        if (draft.price) setPrice(draft.price);
+                        if (draft.markupType) setMarkupType(draft.markupType);
+                        if (draft.markup) setMarkup(draft.markup);
+                        if (draft.selectedCategoryId) setSelectedCategoryId(draft.selectedCategoryId);
+                        if (draft.selectedSubcategoryId) setSelectedSubcategoryId(draft.selectedSubcategoryId);
+                        if (draft.productAttributes) setProductAttributes(draft.productAttributes);
+                        if (draft.productAttributeValues) setProductAttributeValues(draft.productAttributeValues);
+                    } catch (e) {
+                        console.error("Error loading draft", e);
+                    }
+                }
+            }
         } catch (err) {
             console.error('Error fetching categories or attributes', err);
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -175,6 +244,11 @@ export default function ProductForm() {
                 } else {
                     setError('Este código de barras ya está registrado para: ' + data.product.name);
                 }
+            } else if (!data.exists) {
+                if (!isEditing) {
+                    toast.success('Código capturado: Listo para nuevo producto');
+                }
+                setError('');
             } else {
                 setError('');
             }
@@ -202,7 +276,6 @@ export default function ProductForm() {
                     Html5QrcodeSupportedFormats.UPC_A,
                     Html5QrcodeSupportedFormats.UPC_E,
                     Html5QrcodeSupportedFormats.ITF,
-                    Html5QrcodeSupportedFormats.QR_CODE,
                 ]
             };
 
@@ -338,6 +411,7 @@ export default function ProductForm() {
                     headers: { 'Content-Type': 'multipart/form-data' }
                 });
             }
+            clearDraft();
             navigate('/admin/products');
         } catch (err) {
             const error = err as AxiosError<{ message?: string; errors?: Record<string, string[]> }>;
@@ -421,9 +495,9 @@ export default function ProductForm() {
                             </div>
                         )}
 
-                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-                            {/* LEFT COLUMN: Main Info */}
-                            <div className="lg:col-span-8 space-y-12">
+                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-12 relative z-10">
+                            {/* LEFT COLUMN: Main Form */}
+                            <div className={`${isPromo || isCombo ? 'lg:col-span-8' : 'lg:col-span-12'} space-y-12`}>
                                 {/* General Info Card */}
                                 <section className="bg-white rounded-[2rem] md:rounded-[3.0rem] border border-gray-100 shadow-2xl shadow-gray-200/40 p-6 sm:p-8 md:p-16 space-y-8 md:space-y-12 transition-all hover:shadow-teal/5">
                                     <div className="flex items-center gap-5 md:gap-6">
@@ -739,101 +813,103 @@ export default function ProductForm() {
                             </div>
 
                             {/* RIGHT COLUMN: Media */}
-                            <div className="lg:col-span-4 space-y-12">
-                                {/* Images Card */}
-                                <section className="bg-white rounded-[1.5rem] md:rounded-[2.5rem] border border-gray-100 shadow-2xl shadow-gray-200/40 p-6 sm:p-8 md:p-10 space-y-8 md:space-y-12 sticky top-12 transition-all hover:shadow-teal/5">
-                                    <div className="flex items-center gap-5 md:gap-6">
-                                        <div className="w-12 h-16 md:w-14 md:h-20 bg-teal rounded-[1.25rem] flex items-center justify-center text-white text-2xl md:text-3xl shadow-xl shadow-teal-500/20 shrink-0">📸</div>
-                                        <div>
-                                            <h2 className="text-3xl md:text-4xl font-black text-graphite tracking-tight leading-none">Galería Multimedia</h2>
-                                            <p className="text-gray-600 font-bold text-[10px] md:text-xs uppercase tracking-widest mt-2">Visualización premium del producto</p>
+                            {(isPromo || isCombo) && (
+                                <div className="lg:col-span-4 space-y-12">
+                                    {/* Images Card */}
+                                    <section className="bg-white rounded-[1.5rem] md:rounded-[2.5rem] border border-gray-100 shadow-2xl shadow-gray-200/40 p-6 sm:p-8 md:p-10 space-y-8 md:space-y-12 sticky top-12 transition-all hover:shadow-teal/5">
+                                        <div className="flex items-center gap-5 md:gap-6">
+                                            <div className="w-12 h-16 md:w-14 md:h-20 bg-teal rounded-[1.25rem] flex items-center justify-center text-white text-2xl md:text-3xl shadow-xl shadow-teal-500/20 shrink-0">📸</div>
+                                            <div>
+                                                <h2 className="text-3xl md:text-4xl font-black text-graphite tracking-tight leading-none">Galería Multimedia</h2>
+                                                <p className="text-gray-600 font-bold text-[10px] md:text-xs uppercase tracking-widest mt-2">Visualización premium del producto</p>
+                                            </div>
                                         </div>
-                                    </div>
 
-                                    <div className="space-y-8">
-                                        <label className="block text-xs font-black text-gray-500 uppercase tracking-[0.2em] ml-1 text-center">Imagen de Portada</label>
-                                        <div className="relative group aspect-[4/5] bg-gray-50 border-2 border-dashed border-gray-200 rounded-[2.5rem] flex items-center justify-center overflow-hidden transition-all hover:border-teal/50 hover:bg-teal/[0.02] shadow-sm">
-                                            {mainImagePreview ? (
-                                                <>
-                                                    <img src={mainImagePreview} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
-                                                    <div className="absolute inset-0 bg-graphite/60 opacity-0 group-hover:opacity-100 transition-all duration-300 backdrop-blur-[2px] flex items-center justify-center">
-                                                        <label className="px-6 py-3 bg-white text-graphite text-[10px] font-black uppercase tracking-[0.2em] rounded-2xl cursor-pointer shadow-2xl active:scale-95 transition-all">
-                                                            Sustituir Imagen
-                                                            <input type="file" className="hidden" accept="image/*" onChange={(e) => {
-                                                                const file = e.target.files?.[0];
-                                                                if (file) {
-                                                                    setMainImageFile(file);
-                                                                    const reader = new FileReader();
-                                                                    reader.onloadend = () => setMainImagePreview(reader.result as string);
-                                                                    reader.readAsDataURL(file);
-                                                                }
-                                                            }} />
-                                                        </label>
-                                                    </div>
-                                                </>
-                                            ) : (
-                                                <label className="flex flex-col items-center cursor-pointer p-8 text-center group/label">
-                                                    <div className="w-20 h-20 bg-white shadow-xl shadow-gray-200/50 rounded-[2rem] flex items-center justify-center text-4xl mb-6 transition-transform group-hover/label:scale-110 group-hover/label:rotate-3 duration-300">🖼️</div>
-                                                    <span className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em]">Cargar Fotografía</span>
-                                                    <p className="text-[8px] font-bold text-gray-400 uppercase tracking-widest mt-2 px-6">Formatos sugeridos: JPG, PNG • Máx 5MB</p>
-                                                    <input type="file" className="hidden" accept="image/*" onChange={(e) => {
-                                                        const file = e.target.files?.[0];
-                                                        if (file) {
-                                                            setMainImageFile(file);
-                                                            const reader = new FileReader();
-                                                            reader.onloadend = () => setMainImagePreview(reader.result as string);
-                                                            reader.readAsDataURL(file);
-                                                        }
-                                                    }} />
-                                                </label>
-                                            )}
-                                        </div>
-                                    </div>
-
-                                    {/* Gallery */}
-                                    <div className="space-y-4">
-                                        <label className="block text-xs font-black text-gray-500 uppercase tracking-widest ml-1">Galería de Fotos</label>
-                                        <div className="grid grid-cols-2 gap-4">
-                                            {galleryImagePreviews.map((preview, idx) => (
-                                                <div key={idx} className="relative aspect-square border-2 border-gray-100 rounded-2xl overflow-hidden group">
-                                                    <img src={preview} className="w-full h-full object-cover" />
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => {
-                                                            setGalleryImagePreviews(prev => prev.filter((_, i) => i !== idx));
-                                                            setGalleryImageFiles(prev => prev.filter((_, i) => i !== idx));
-                                                        }}
-                                                        className="absolute top-2 right-2 bg-red-pink text-white rounded-lg p-1.5 opacity-0 group-hover:opacity-100 transition-all shadow-md active:scale-90"
-                                                    >
-                                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" /></svg>
-                                                    </button>
-                                                </div>
-                                            ))}
-                                            <label className="aspect-square border-2 border-dashed border-gray-100 rounded-3xl flex flex-col items-center justify-center cursor-pointer hover:border-teal/30 hover:bg-teal/5 transition-all text-gray-400 hover:text-teal font-black uppercase text-xs tracking-widest gap-3 shadow-sm">
-                                                <span className="text-3xl">➕</span>
-                                                Subir
-                                                <input
-                                                    type="file"
-                                                    multiple
-                                                    className="hidden"
-                                                    accept="image/*"
-                                                    onChange={(e) => {
-                                                        const files = Array.from(e.target.files || []);
-                                                        if (files.length > 0) {
-                                                            setGalleryImageFiles(prev => [...prev, ...files]);
-                                                            files.forEach(file => {
+                                        <div className="space-y-8">
+                                            <label className="block text-xs font-black text-gray-500 uppercase tracking-[0.2em] ml-1 text-center">Imagen de Portada</label>
+                                            <div className="relative group aspect-[4/5] bg-gray-50 border-2 border-dashed border-gray-200 rounded-[2.5rem] flex items-center justify-center overflow-hidden transition-all hover:border-teal/50 hover:bg-teal/[0.02] shadow-sm">
+                                                {mainImagePreview ? (
+                                                    <>
+                                                        <img src={mainImagePreview} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                                                        <div className="absolute inset-0 bg-graphite/60 opacity-0 group-hover:opacity-100 transition-all duration-300 backdrop-blur-[2px] flex items-center justify-center">
+                                                            <label className="px-6 py-3 bg-white text-graphite text-[10px] font-black uppercase tracking-[0.2em] rounded-2xl cursor-pointer shadow-2xl active:scale-95 transition-all">
+                                                                Sustituir Imagen
+                                                                <input type="file" className="hidden" accept="image/*" onChange={(e) => {
+                                                                    const file = e.target.files?.[0];
+                                                                    if (file) {
+                                                                        setMainImageFile(file);
+                                                                        const reader = new FileReader();
+                                                                        reader.onloadend = () => setMainImagePreview(reader.result as string);
+                                                                        reader.readAsDataURL(file);
+                                                                    }
+                                                                }} />
+                                                            </label>
+                                                        </div>
+                                                    </>
+                                                ) : (
+                                                    <label className="flex flex-col items-center cursor-pointer p-8 text-center group/label">
+                                                        <div className="w-20 h-20 bg-white shadow-xl shadow-gray-200/50 rounded-[2rem] flex items-center justify-center text-4xl mb-6 transition-transform group-hover/label:scale-110 group-hover/label:rotate-3 duration-300">🖼️</div>
+                                                        <span className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em]">Cargar Fotografía</span>
+                                                        <p className="text-[8px] font-bold text-gray-400 uppercase tracking-widest mt-2 px-6">Formatos sugeridos: JPG, PNG • Máx 5MB</p>
+                                                        <input type="file" className="hidden" accept="image/*" onChange={(e) => {
+                                                            const file = e.target.files?.[0];
+                                                            if (file) {
+                                                                setMainImageFile(file);
                                                                 const reader = new FileReader();
-                                                                reader.onloadend = () => setGalleryImagePreviews(prev => [...prev, reader.result as string]);
+                                                                reader.onloadend = () => setMainImagePreview(reader.result as string);
                                                                 reader.readAsDataURL(file);
-                                                            });
-                                                        }
-                                                    }}
-                                                />
-                                            </label>
+                                                            }
+                                                        }} />
+                                                    </label>
+                                                )}
+                                            </div>
                                         </div>
-                                    </div>
-                                </section>
-                            </div>
+
+                                        {/* Gallery */}
+                                        <div className="space-y-4">
+                                            <label className="block text-xs font-black text-gray-500 uppercase tracking-widest ml-1">Galería de Fotos</label>
+                                            <div className="grid grid-cols-2 gap-4">
+                                                {galleryImagePreviews.map((preview, idx) => (
+                                                    <div key={idx} className="relative aspect-square border-2 border-gray-100 rounded-2xl overflow-hidden group">
+                                                        <img src={preview} className="w-full h-full object-cover" />
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => {
+                                                                setGalleryImagePreviews(prev => prev.filter((_, i) => i !== idx));
+                                                                setGalleryImageFiles(prev => prev.filter((_, i) => i !== idx));
+                                                            }}
+                                                            className="absolute top-2 right-2 bg-red-pink text-white rounded-lg p-1.5 opacity-0 group-hover:opacity-100 transition-all shadow-md active:scale-90"
+                                                        >
+                                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" /></svg>
+                                                        </button>
+                                                    </div>
+                                                ))}
+                                                <label className="aspect-square border-2 border-dashed border-gray-100 rounded-3xl flex flex-col items-center justify-center cursor-pointer hover:border-teal/30 hover:bg-teal/5 transition-all text-gray-400 hover:text-teal font-black uppercase text-xs tracking-widest gap-3 shadow-sm">
+                                                    <span className="text-3xl">➕</span>
+                                                    Subir
+                                                    <input
+                                                        type="file"
+                                                        multiple
+                                                        className="hidden"
+                                                        accept="image/*"
+                                                        onChange={(e) => {
+                                                            const files = Array.from(e.target.files || []);
+                                                            if (files.length > 0) {
+                                                                setGalleryImageFiles(prev => [...prev, ...files]);
+                                                                files.forEach(file => {
+                                                                    const reader = new FileReader();
+                                                                    reader.onloadend = () => setGalleryImagePreviews(prev => [...prev, reader.result as string]);
+                                                                    reader.readAsDataURL(file);
+                                                                });
+                                                            }
+                                                        }}
+                                                    />
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </section>
+                                </div>
+                            )}
                             {/* Variants / Attributes Section */}
                             {!isPromo && !isCombo && (
                                 <section className="pt-20 space-y-14 animate-in fade-in slide-in-from-bottom-8 duration-700 col-span-1 lg:col-span-12">
@@ -894,6 +970,28 @@ export default function ProductForm() {
                                             {productAttributes.map((attrId) => {
                                                 const attr = allAttributes.find(a => a.id === attrId);
                                                 if (!attr) return null;
+
+                                                const handleAddAttributeValue = async (attributeId: number, attributeName: string) => {
+                                                    const val = quickAddValues[attributeId];
+                                                    if (!val?.trim()) {
+                                                        toast.error('Ingrese un nombre');
+                                                        return;
+                                                    }
+                                                    try {
+                                                        const { data } = await api.post(`/admin/attributes/${attributeId}/values`, { name: val });
+                                                        setAllAttributes(prev => prev.map(a => a.id === attributeId ? { ...a, values: [...a.values, data] } : a));
+                                                        setQuickAddValues((prev: Record<number, string>) => ({ ...prev, [attributeId]: '' }));
+                                                        toast.success(`${attributeName} agregada`);
+                                                    } catch (err: any) {
+                                                        console.error(err);
+                                                        if (err.response?.status === 422) {
+                                                            toast.error('Esta variante ya existe');
+                                                        } else {
+                                                            toast.error('Error al agregar');
+                                                        }
+                                                    }
+                                                };
+
                                                 return (
                                                     <div key={attr.id} className="bg-white rounded-1xl border border-gray-100 shadow-xl shadow-gray-200/40 overflow-hidden transition-all hover:shadow-2xl hover:shadow-gray-200/60">
                                                         <div className="bg-graphite p-6 md:px-20 flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6 relative overflow-hidden">
@@ -902,28 +1000,30 @@ export default function ProductForm() {
                                                                 <h5 className="text-white font-black uppercase tracking-widest md:tracking-[0.3em] text-sm md:text-base">{attr.name}</h5>
                                                                 <span className="px-3 md:px-5 py-1 md:py-2 bg-white/10 rounded-full text-[9px] md:text-[10px] font-black text-white/50 uppercase tracking-widest">{attr.values.length} Disponibles</span>
                                                             </div>
-                                                            <div className="relative group z-10 w-full md:w-auto">
-                                                                <input
-                                                                    id={`quick-add-${attr.id}`}
-                                                                    type="text"
-                                                                    placeholder={`Agregar ${attr.name.toLowerCase()}...`}
-                                                                    className="pl-10 md:pl-12 pr-12 md:pr-20 py-4 md:py-8 bg-white/5 border border-white/10 rounded-xl md:rounded-[2rem] text-white placeholder-white/20 text-xs md:text-lg font-bold outline-none focus:bg-white/10 focus:border-teal/50 transition-all w-full md:w-[500px]"
-                                                                    onKeyDown={async (e) => {
-                                                                        if (e.key === 'Enter') {
-                                                                            e.preventDefault();
-                                                                            const input = e.target as HTMLInputElement;
-                                                                            if (!input.value) return;
-                                                                            try {
-                                                                                const { data } = await api.post(`/admin/attributes/${attr.id}/values`, { name: input.value });
-                                                                                setAllAttributes(prev => prev.map(a => a.id === attr.id ? { ...a, values: [...a.values, data] } : a));
-                                                                                input.value = '';
-                                                                            } catch (err) { console.error(err); }
-                                                                        }
-                                                                    }}
-                                                                />
-                                                                <div className="absolute right-4 md:right-5 top-1/2 -translate-y-1/2 text-white/10 group-focus-within:text-teal transition-colors">
-                                                                    <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M12 4v16m8-8H4" /></svg>
+                                                            <div className="relative group z-10 w-full md:w-auto flex items-center gap-3">
+                                                                <div className="relative flex-1">
+                                                                    <input
+                                                                        type="text"
+                                                                        value={quickAddValues[attr.id] || ''}
+                                                                        onChange={(e) => setQuickAddValues((prev: Record<number, string>) => ({ ...prev, [attr.id]: e.target.value }))}
+                                                                        placeholder={`Agregar ${attr.name.toLowerCase()}...`}
+                                                                        className="px-6 md:px-10 py-4 md:py-8 bg-white border-2 border-gray-100 rounded-xl md:rounded-[2rem] text-graphite placeholder-gray-400 text-xs md:text-lg font-bold outline-none focus:border-teal transition-all w-full md:w-[500px] shadow-sm"
+                                                                        onKeyDown={(e) => {
+                                                                            if (e.key === 'Enter') {
+                                                                                e.preventDefault();
+                                                                                handleAddAttributeValue(attr.id, attr.name);
+                                                                            }
+                                                                        }}
+                                                                    />
                                                                 </div>
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => handleAddAttributeValue(attr.id, attr.name)}
+                                                                    className="w-12 h-12 md:w-16 md:h-16 bg-teal hover:bg-teal-600 text-white rounded-xl md:rounded-2xl flex items-center justify-center shadow-lg shadow-teal-500/20 active:scale-95 transition-all text-xl"
+                                                                    title="Agregar Variación"
+                                                                >
+                                                                    ➕
+                                                                </button>
                                                             </div>
                                                         </div>
 
@@ -988,6 +1088,7 @@ export default function ProductForm() {
                             <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-16 mt-12 md:mt-32 pt-12 md:pt-24 mb-12 md:mb-16 border-t-4 border-gray-100 col-span-1 lg:col-span-12">
                                 <Link
                                     to="/admin/products"
+                                    onClick={clearDraft}
                                     className="w-full md:w-auto px-8 md:px-24 py-6 md:py-11 bg-white border-4 border-gray-100 text-gray-500 font-black uppercase tracking-widest md:tracking-[0.3em] text-[10px] md:text-sm rounded-2xl md:rounded-[2.5rem] hover:bg-gray-50 hover:text-graphite hover:border-graphite shadow-sm active:scale-95 transition-all text-center"
                                 >
                                     Descartar y Volver

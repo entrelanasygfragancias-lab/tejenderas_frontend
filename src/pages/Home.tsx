@@ -640,7 +640,12 @@ export default function Home() {
 
                                                     <div className="w-full md:w-[40%] text-center md:text-left min-w-0 flex flex-col justify-center py-2 md:py-4">
                                                         <span className="text-pink-hot font-black text-[10px] md:text-[11px] uppercase tracking-[0.2em] mb-2 block">PROMOCIÓN DEL MES</span>
-                                                        <h3 className="text-lg md:text-xl lg:text-3xl font-black text-graphite mb-3 uppercase tracking-tight leading-tight group-hover:text-pink-hot transition-colors break-words max-w-full md:max-w-[280px] lg:max-w-md">{item.name}</h3>
+                                                        <h3 className="text-lg md:text-xl lg:text-3xl font-black text-graphite mb-1 uppercase tracking-tight leading-tight group-hover:text-pink-hot transition-colors break-words max-w-full md:max-w-[280px] lg:max-w-md">{item.name}</h3>
+                                                        {item.variantName && (
+                                                            <div className="mb-3">
+                                                                <span className="bg-graphite text-white text-[9px] md:text-[11px] font-black px-2.5 py-1 rounded-md uppercase tracking-wider">{item.variantName}</span>
+                                                            </div>
+                                                        )}
                                                         <p className="text-gray-500 text-[11px] md:text-xs font-medium mb-4 md:mb-6 line-clamp-3 md:line-clamp-4 leading-relaxed max-w-full md:max-w-[240px] lg:max-w-sm">{item.description}</p>
 
                                                         <div className="flex flex-col md:flex-row items-center md:items-end gap-4 md:gap-5 mt-auto border-t-2 border-gray-50 pt-4 md:pt-5">
@@ -823,7 +828,12 @@ export default function Home() {
                                             </div>
 
                                             <div className="flex flex-col flex-grow">
-                                                <h3 className="text-sm md:text-lg font-black text-graphite line-clamp-2 leading-tight mb-2 uppercase group-hover/card:text-pink-hot transition-colors">{item.name}</h3>
+                                                <h3 className="text-sm md:text-lg font-black text-graphite line-clamp-1 leading-tight mb-1 uppercase group-hover/card:text-pink-hot transition-colors">{item.name}</h3>
+                                                {item.variantName && (
+                                                    <div className="mb-2">
+                                                        <span className="bg-pink-hot/10 text-pink-hot text-[9px] md:text-[10px] font-black px-2 py-0.5 rounded-md border border-pink-hot/20 uppercase tracking-wider">{item.variantName}</span>
+                                                    </div>
+                                                )}
                                                 <p className="text-[10px] md:text-sm text-gray-500 font-bold uppercase tracking-widest mb-4 line-clamp-1">{item.brand || 'Tejenderas'}</p>
 
                                                 <div className="mt-auto flex items-center justify-between gap-2 border-t border-gray-100 pt-4">
