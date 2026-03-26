@@ -16,7 +16,7 @@ import Footer from '../components/Footer';
 const InfoModal = ({ isOpen, onClose, title, content }: { isOpen: boolean; onClose: () => void; title: string; content: React.ReactNode }) => (
     <AnimatePresence>
         {isOpen && (
-            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <div className="fixed inset-0 z-100 flex items-center justify-center p-4">
                 <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
@@ -220,6 +220,8 @@ export default function Home() {
     const [isCartOpen, setIsCartOpen] = useState(false);
     const [activeInfoModal, setActiveInfoModal] = useState<'shipping' | 'payment' | 'quality' | null>(null);
     const [heroBanners, setHeroBanners] = useState<HeroBanner[]>([]);
+    const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
+    const [isSubcategoryDropdownOpen, setIsSubcategoryDropdownOpen] = useState(false);
 
     const { addToCart } = useCart();
 
@@ -264,6 +266,20 @@ export default function Home() {
         fetchProducts();
         fetchCategories();
         loadHeroBanners();
+    }, []);
+
+    // Cerrar dropdowns al hacer clic fuera
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            const target = event.target as Element;
+            if (!target.closest('.group') && !target.closest('[data-dropdown]')) {
+                setIsCategoryDropdownOpen(false);
+                setIsSubcategoryDropdownOpen(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
     const fetchCategories = async () => {
@@ -483,7 +499,7 @@ export default function Home() {
     return (
         <div className="min-h-screen bg-white text-graphite font-sans selection:bg-pink-hot selection:text-white">
             {/* Top Bar */}
-            <div className="bg-graphite text-white text-center py-3 text-sm max-md:text-xs font-bold tracking-widest uppercase max-md:px-4">
+            <div className="bg-graphite text-white text-center py-3 text-sm max-md:text-xs font-bold tracking-widest uppercase w-full">
                 Envíos a todo el país 🇨🇴 | ¡Pregunta por nuestra Promo del mes!
             </div>
 
@@ -543,7 +559,7 @@ export default function Home() {
             </section>
 
             {/* Categories */}
-            <section style={{ paddingTop: '30px', paddingBottom: '30px' }} className="px-6 md:px-12 border-b-8 border-graphite bg-yellow-50">
+            <section style={{ paddingTop: '30px', paddingBottom: '30px' }} className="px-6 md:px-12 border-b-8 border-graphite bg-yellow-50 hidden md:block">
                 <div className="max-w-360 mx-auto">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 max-md:gap-6 lg:gap-10 justify-items-center">
                         {categories.map((cat, i) => (
@@ -621,7 +637,7 @@ export default function Home() {
                                         breakpoints={{
                                             1024: { slidesPerView: 1.2, spaceBetween: 50 }
                                         }}
-                                        className="promos-swiper !pb-24 !px-4"
+                                        className="promos-swiper pb-24! px-4!"
                                     >
                                         {promoItems.map((item, index) => (
                                             <SwiperSlide key={item.key}>
@@ -629,9 +645,9 @@ export default function Home() {
                                                     initial={{ opacity: 0, y: 30 }}
                                                     animate={{ opacity: 1, y: 0 }}
                                                     transition={{ delay: index * 0.1 }}
-                                                    className="bg-white rounded-[2rem] md:rounded-[3rem] p-6 md:p-12 shadow-2xl border-4 border-transparent hover:border-lime group flex flex-col md:flex-row gap-8 md:gap-14 items-center justify-center transition-all duration-500 mx-auto max-w-[95%] md:max-w-none min-h-[420px] md:min-h-[420px]"
+                                                    className="bg-white rounded-4xl md:rounded-[3rem] p-6 md:p-12 shadow-2xl border-4 border-transparent hover:border-lime group flex flex-col md:flex-row gap-8 md:gap-14 items-center justify-center transition-all duration-500 mx-auto max-w-[95%] md:max-w-none min-h-[420px] md:min-h-[420px]"
                                                 >
-                                                    <div className="w-full md:w-[50%] aspect-square md:aspect-[4/3] bg-white rounded-[1.5rem] md:rounded-[2.5rem] overflow-hidden border-2 border-gray-100 relative shine-effect shrink-0">
+                                                    <div className="w-full md:w-[50%] aspect-square md:aspect-4/3 bg-white rounded-3xl md:rounded-[2.5rem] overflow-hidden border-2 border-gray-100 relative shine-effect shrink-0">
                                                         <ProductImageCarousel item={item} isPromoSection={true} />
                                                         <div className="absolute top-4 left-4 z-30 pointer-events-none">
                                                             <span className="bg-pink-hot text-white text-[10px] md:text-xs font-black px-4 py-1.5 rounded-full border-2 border-white shadow-lg animate-pulse uppercase tracking-widest">OFERTA</span>
@@ -640,7 +656,7 @@ export default function Home() {
 
                                                     <div className="w-full md:w-[40%] text-center md:text-left min-w-0 flex flex-col justify-center py-2 md:py-4">
                                                         <span className="text-pink-hot font-black text-[10px] md:text-[11px] uppercase tracking-[0.2em] mb-2 block">PROMOCIÓN DEL MES</span>
-                                                        <h3 className="text-lg md:text-xl lg:text-3xl font-black text-graphite mb-1 uppercase tracking-tight leading-tight group-hover:text-pink-hot transition-colors break-words max-w-full md:max-w-[280px] lg:max-w-md">{item.name}</h3>
+                                                        <h3 className="text-lg md:text-xl lg:text-3xl font-black text-graphite mb-1 uppercase tracking-tight leading-tight group-hover:text-pink-hot transition-colors wrap-break-word max-w-full md:max-w-[280px] lg:max-w-md">{item.name}</h3>
                                                         {item.variantName && (
                                                             <div className="mb-3">
                                                                 <span className="bg-graphite text-white text-[9px] md:text-[11px] font-black px-2.5 py-1 rounded-md uppercase tracking-wider">{item.variantName}</span>
@@ -672,14 +688,10 @@ export default function Home() {
                         {/* Filters & Search Bar Container */}
                         <div
                             id="filtros-home"
-                            className="w-full relative px-4 md:px-10 lg:px-20 flex flex-col gap-8 md:gap-12 items-center"
-                            style={{
-                                maxWidth: '1400px',
-                                marginInline: 'auto'
-                            }}
+                            className="filters-container"
                         >
                             {/* Filters Buttons Row - ALWAYS VISIBLE BELOW PROMOS */}
-                            <div className="bg-white/5 backdrop-blur-md border border-white/10 p-4 md:p-5 rounded-[1.5rem] md:rounded-[2rem] shadow-2xl flex flex-wrap items-center justify-center gap-2 md:gap-3 relative z-50">
+                            <div className="filters-row">
 
                                 {/* Absolute Small Clear Button - NOW INSET MORE */}
                                 {(selectedDbCategoryId || selectedSubcategoryId !== 'all' || searchQuery) && (
@@ -690,7 +702,7 @@ export default function Home() {
                                             setSelectedSubcategoryId('all');
                                             setSearchQuery('');
                                         }}
-                                        className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-pink-hot border-2 border-white text-white shadow-2xl hover:scale-110 active:scale-95 transition-all flex items-center justify-center z-[70] group"
+                                        className="clear-filters-btn"
                                         title="Limpiar filtros"
                                     >
                                         <svg className="w-4 h-4 group-hover:rotate-90 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={4} d="M6 18L18 6M6 6l12 12" /></svg>
@@ -698,11 +710,12 @@ export default function Home() {
                                 )}
 
                                 {/* Dropdown: Categories */}
-                                <div className="relative group/dd flex-1 md:flex-initial min-w-[180px] md:min-w-[260px]">
-                                    <button className={`w-full px-5 py-5 md:px-14 md:py-7 rounded-2xl font-black uppercase tracking-widest transition-all flex items-center justify-between border-4 ${selectedDbCategoryId
-                                        ? 'bg-lime border-graphite text-graphite shadow-xl'
-                                        : 'bg-lime border-white text-graphite shadow-[0_0_30px_rgba(204,255,0,0.4)]'
-                                        }`}>
+                                <div className="category-dropdown-wrapper">
+                                    <button 
+                                        className={`category-dropdown-btn ${selectedDbCategoryId ? 'selected' : ''}`}
+                                        onClick={() => setIsCategoryDropdownOpen(!isCategoryDropdownOpen)}
+                                        onTouchStart={() => setIsCategoryDropdownOpen(!isCategoryDropdownOpen)}
+                                    >
                                         <div className="flex flex-col items-start text-left min-w-0">
                                             <span className="text-sm md:text-xl truncate leading-none w-full text-center">
                                                 {selectedDbCategoryId ? dbCategories.find(c => Number(c.id) === Number(selectedDbCategoryId))?.name : 'Categorías 📦'}
@@ -710,11 +723,12 @@ export default function Home() {
                                         </div>
                                         <svg className="w-4 h-4 md:w-5 md:h-5 ml-2 md:ml-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M19 9l-7 7-7-7" /></svg>
                                     </button>
-                                    <div className="absolute top-full left-0 mt-2 w-full bg-[#1a1a1a] border-2 border-white/10 rounded-xl overflow-hidden shadow-2xl opacity-0 translate-y-2 pointer-events-none group-hover/dd:opacity-100 group-hover/dd:translate-y-0 group-hover/dd:pointer-events-auto transition-all duration-300 z-[60] max-h-60 overflow-y-auto">
+                                    <div className={`category-dropdown ${isCategoryDropdownOpen ? 'open' : ''}`}>
                                         <button
                                             onClick={() => {
                                                 setSelectedDbCategoryId(null);
                                                 setSelectedSubcategoryId('all');
+                                                setIsCategoryDropdownOpen(false);
                                             }}
                                             className="w-full text-left px-6 py-4 md:px-12 md:py-8 text-sm md:text-xl font-bold uppercase tracking-widest text-white/60 hover:bg-lime hover:text-graphite transition-colors"
                                         >
@@ -726,6 +740,7 @@ export default function Home() {
                                                 onClick={() => {
                                                     setSelectedDbCategoryId(Number(cat.id));
                                                     setSelectedSubcategoryId('all');
+                                                    setIsCategoryDropdownOpen(false);
                                                 }}
                                                 className="w-full text-left px-6 py-4 md:px-12 md:py-8 text-sm md:text-xl font-bold uppercase tracking-widest text-white/60 hover:bg-lime hover:text-graphite transition-colors"
                                             >
@@ -738,10 +753,14 @@ export default function Home() {
                                 {/* Dropdown: Subcategories */}
                                 {selectedDbCategoryId && (
                                     <div className="relative group/dd flex-1 md:flex-initial min-w-[120px] md:min-w-[180px]">
-                                        <button className={`w-full px-4 py-4 md:px-12 md:py-6 rounded-2xl font-black uppercase tracking-widest transition-all flex items-center justify-between border-4 ${selectedSubcategoryId !== 'all'
-                                            ? 'bg-teal-light border-white text-graphite shadow-xl'
-                                            : 'bg-white/5 border-white/20 text-white/50 hover:border-white/40 shadow-lg'
-                                            }`}>
+                                        <button 
+                                            className={`w-full px-4 py-4 md:px-12 md:py-6 rounded-2xl font-black uppercase tracking-widest transition-all flex items-center justify-between border-4 ${selectedSubcategoryId !== 'all'
+                                                ? 'bg-teal-light border-white text-graphite shadow-xl'
+                                                : 'bg-white/5 border-white/20 text-white/50 hover:border-white/40 shadow-lg'
+                                                }`}
+                                            onClick={() => setIsSubcategoryDropdownOpen(!isSubcategoryDropdownOpen)}
+                                            onTouchStart={() => setIsSubcategoryDropdownOpen(!isSubcategoryDropdownOpen)}
+                                        >
                                             <div className="flex flex-col items-start text-left min-w-0">
                                                 <span className="text-xs md:text-xl truncate leading-none w-full">
                                                     {selectedSubcategoryId !== 'all' ? dbCategories.find(c => c.id === selectedDbCategoryId)?.subcategories?.find(s => s.id === selectedSubcategoryId)?.name : 'Subcat.'}
@@ -749,10 +768,11 @@ export default function Home() {
                                             </div>
                                             <svg className="w-3 h-3 md:w-5 md:h-5 ml-2 md:ml-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M19 9l-7 7-7-7" /></svg>
                                         </button>
-                                        <div className="absolute top-full left-0 mt-2 w-full bg-[#1a1a1a] border-2 border-white/10 rounded-xl overflow-hidden shadow-2xl opacity-0 translate-y-2 pointer-events-none group-hover/dd:opacity-100 group-hover/dd:translate-y-0 group-hover/dd:pointer-events-auto transition-all duration-300 z-[60] max-h-96 overflow-y-auto">
+                                        <div className={`absolute top-full left-0 mt-2 w-full bg-[#1a1a1a] border-2 border-white/10 rounded-xl overflow-hidden shadow-2xl transition-all duration-300 z-60 max-h-96 overflow-y-auto ${isSubcategoryDropdownOpen || 'group-hover/dd:opacity-100 group-hover/dd:translate-y-0 group-hover/dd:pointer-events-auto' ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 translate-y-2 pointer-events-none'}`}>
                                             <button
                                                 onClick={() => {
                                                     setSelectedSubcategoryId('all');
+                                                    setIsSubcategoryDropdownOpen(false);
                                                 }}
                                                 className="w-full text-left px-6 py-4 md:px-12 md:py-8 text-sm md:text-xl font-bold uppercase tracking-widest text-white/60 hover:bg-teal-light hover:text-graphite transition-colors"
                                             >
@@ -763,6 +783,7 @@ export default function Home() {
                                                     key={sub.id}
                                                     onClick={() => {
                                                         setSelectedSubcategoryId(sub.id);
+                                                        setIsSubcategoryDropdownOpen(false);
                                                     }}
                                                     className="w-full text-left px-6 py-4 md:px-12 md:py-8 text-sm md:text-xl font-bold uppercase tracking-widest text-white/60 hover:bg-teal-light hover:text-graphite transition-colors"
                                                 >
@@ -781,7 +802,7 @@ export default function Home() {
                     <div className="w-full h-12 md:h-24 lg:h-32"></div>
 
                     {/* Product List Section - CENTERED ARCHITECTURE FOR PREMIUM FEEL */}
-                    <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-20 w-full px-4 md:px-10 lg:px-16 min-h-[400px]">
+                    <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-20 w-full min-h-[400px] product-grid-padding">
                         {filteredDisplayItems.length === 0 ? (
                             <div className="col-span-full py-20 text-center flex flex-col items-center justify-center animate-in fade-in slide-in-from-bottom-4 duration-500">
                                 <span className="text-7xl">🔍</span>
@@ -816,7 +837,7 @@ export default function Home() {
                                         }}
                                         className="group"
                                     >
-                                        <div className="bg-white rounded-[1.5rem] md:rounded-[2.5rem] p-4 md:p-6 shadow-xl border-4 border-transparent hover:border-lime transition-all duration-500 flex flex-col h-full relative overflow-hidden group/card shadow-[8px_8px_0px_0px_rgba(0,0,0,0.05)]">
+                                        <div className="bg-white rounded-3xl md:rounded-[2.5rem] p-4 md:p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,0.05)] border-4 border-transparent hover:border-lime transition duration-500 flex flex-col h-full relative overflow-hidden group/card">
                                             <div className="aspect-square bg-white rounded-2xl overflow-hidden mb-4 relative flex items-center justify-center border-2 border-gray-100 group-hover/card:border-lime/30 transition-colors">
                                                 <ProductImageCarousel item={item} />
 
@@ -827,7 +848,7 @@ export default function Home() {
                                                 )}
                                             </div>
 
-                                            <div className="flex flex-col flex-grow">
+                                            <div className="flex flex-col grow">
                                                 <h3 className="text-sm md:text-lg font-black text-graphite line-clamp-1 leading-tight mb-1 uppercase group-hover/card:text-pink-hot transition-colors">{item.name}</h3>
                                                 {item.variantName && (
                                                     <div className="mb-2">

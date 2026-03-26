@@ -33,8 +33,8 @@ export default function Navbar({ onOpenCart }: NavbarProps) {
     ];
 
     return (
-        <nav className="border-b-4 border-graphite py-10 max-md:py-6 safe-mobile-margin md:px-20 lg:px-32 sticky top-0 bg-white z-50 transition-all duration-300">
-            <div className="max-w-360 mx-auto flex justify-between items-center relative">
+        <nav className="border-b-4 border-graphite py-10 max-md:py-6 sticky top-0 bg-white z-50 transition-all duration-300">
+            <div className="max-w-360 mx-auto flex justify-between items-center relative px-4 md:px-10 lg:px-20">
                 <Link to="/" className="group" onClick={() => setIsMobileMenuOpen(false)}>
                     <div className="flex items-center gap-4 md:gap-6">
                         <CustomLogo className="w-20 h-20 group-hover:rotate-12 transition-transform duration-300 max-md:w-16 max-md:h-16" />

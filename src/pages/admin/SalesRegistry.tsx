@@ -4,6 +4,7 @@ import { useReactToPrint } from 'react-to-print';
 import api from '../../api';
 import AdminLayout from '../../components/AdminLayout';
 import { formatCurrency } from '../../utils/format';
+import './SalesRegistry.css';
 
 interface SaleItem {
     id: number;
@@ -49,6 +50,10 @@ export default function SalesRegistry() {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState('');
     const [selectedSaleForPrint, setSelectedSaleForPrint] = useState<Sale | null>(null);
+    const [showTotalsModal, setShowTotalsModal] = useState(false);
+    const [selectedSales, setSelectedSales] = useState<Set<string>>(new Set());
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
     const printRef = useRef<HTMLDivElement>(null);
 
     const handlePrint = useReactToPrint({
@@ -62,6 +67,88 @@ export default function SalesRegistry() {
         setTimeout(() => {
             handlePrint();
         }, 100);
+    };
+
+    // Funciones de selección
+    const toggleSaleSelection = (saleKey: string) => {
+        setSelectedSales(prev => {
+            const newSet = new Set(prev);
+            if (newSet.has(saleKey)) {
+                newSet.delete(saleKey);
+            } else {
+                newSet.add(saleKey);
+            }
+            return newSet;
+        });
+    };
+
+    const selectAllSales = () => {
+        const allSaleKeys = sales.map(sale => `${sale.type}-${sale.id}`);
+        setSelectedSales(new Set(allSaleKeys));
+    };
+
+    const clearSelection = () => {
+        setSelectedSales(new Set());
+    };
+
+    // Función de eliminación
+    const deleteSelectedSales = async () => {
+        setIsDeleting(true);
+        
+        // Guardar el tamaño original para el mensaje
+        const deletedCount = selectedSales.size;
+        
+        // Limpiar selección inmediatamente
+        setSelectedSales(new Set());
+        setShowDeleteConfirm(false);
+        
+        try {
+            console.log('Iniciando eliminación de ventas:', Array.from(selectedSales));
+            
+            // Eliminar cada venta seleccionada
+            const deletePromises = Array.from(selectedSales).map(async (saleKey) => {
+                const [type, id] = saleKey.split('-');
+                console.log(`Eliminando ${type} con ID: ${id}`);
+                
+                try {
+                    let response;
+                    if (type === 'pos') {
+                        response = await api.delete(`/admin/sales/${id}`);
+                    } else if (type === 'order') {
+                        response = await api.delete(`/admin/orders/${id}`);
+                    } else if (type === 'contract_payment') {
+                        response = await api.delete(`/admin/contract-payments/${id}`);
+                    }
+                    
+                    console.log(`Respuesta del servidor para ${type} ${id}:`, response);
+                    return response;
+                } catch (error: any) {
+                    console.error(`Error al eliminar ${type} ${id}:`, error.response?.data || error.message);
+                    throw error;
+                }
+            });
+
+            const results = await Promise.all(deletePromises);
+            console.log('Todos los resultados de eliminación:', results);
+
+            // Actualizar el listado
+            await fetchSales();
+            
+            // Mostrar éxito
+            const successMessage = `Se eliminaron ${deletedCount} venta(s) exitosamente`;
+            console.log(successMessage);
+            
+            // Mostrar mensaje de éxito temporal
+            setError(successMessage);
+            setTimeout(() => setError(''), 3000);
+            
+        } catch (error: any) {
+            console.error('Error al eliminar ventas:', error);
+            const errorMessage = error.response?.data?.message || 'Error al eliminar las ventas seleccionadas';
+            setError(errorMessage);
+        } finally {
+            setIsDeleting(false);
+        }
     };
 
     useEffect(() => {
@@ -252,154 +339,189 @@ export default function SalesRegistry() {
             title="Registro de Ventas"
             subtitle="Seguimiento detallado de todas las transacciones comerciales"
         >
-            <div className="w-full pb-14 flex flex-col items-center">
-                <div className="h-10 md:h-16"></div>
+            <div className="sales-registry">
+                <div className="spacer-10"></div>
+                
                 {/* Filters */}
-                <div className="w-[90%] md:w-full max-w-6xl mx-auto flex flex-col items-center gap-8 mb-14 mt-6">
-                    <h2 className="text-2xl md:text-3xl font-black text-graphite uppercase tracking-tighter text-center">Listado de Ventas</h2>
+                <div className="filters-container">
                     <div className="flex flex-col md:flex-row justify-center items-center gap-6 w-full">
-                        <div className="flex flex-wrap bg-white rounded-xl border-2 border-graphite p-1 gap-1 justify-center">
+                        <div className="filter-buttons">
                             <button
                                 onClick={() => setFilter('daily')}
-                                className={`flex-1 md:flex-none px-4 py-2 rounded-lg font-bold uppercase text-sm transition-all ${filter === 'daily' ? 'bg-indigo-500 text-white shadow-md border-2 border-graphite' : 'text-gray-500 hover:bg-gray-100'}`}
+                                className={`filter-btn ${filter === 'daily' ? 'active' : ''}`}
                             >
                                 Hoy
                             </button>
                             <button
                                 onClick={() => setFilter('all')}
-                                className={`flex-1 md:flex-none px-4 py-2 rounded-lg font-bold uppercase text-sm transition-all ${filter === 'all' ? 'bg-graphite text-white shadow-md' : 'text-gray-500 hover:bg-gray-100'}`}
+                                className={`filter-btn ${filter === 'all' ? 'active' : ''}`}
                             >
                                 Todas
                             </button>
                             <button
                                 onClick={() => setFilter('weekly')}
-                                className={`flex-1 md:flex-none px-4 py-2 rounded-lg font-bold uppercase text-sm transition-all ${filter === 'weekly' ? 'bg-lime text-graphite shadow-md border-2 border-graphite' : 'text-gray-500 hover:bg-gray-100'}`}
+                                className={`filter-btn ${filter === 'weekly' ? 'active' : ''}`}
                             >
                                 Semanal
                             </button>
                             <button
                                 onClick={() => setFilter('monthly')}
-                                className={`flex-1 md:flex-none px-4 py-2 rounded-lg font-bold uppercase text-sm transition-all ${filter === 'monthly' ? 'bg-teal text-white shadow-md border-2 border-graphite' : 'text-gray-500 hover:bg-gray-100'}`}
+                                className={`filter-btn ${filter === 'monthly' ? 'active' : ''}`}
                             >
                                 Mensual
                             </button>
                         </div>
-                        <button
-                            onClick={exportExcel}
-                            className="px-4 py-2 rounded-xl font-black uppercase text-xs bg-yellow-400 text-graphite border-2 border-graphite shadow-[2px_2px_0px_0px_#333] hover:bg-yellow-500 transition-all"
-                        >
-                            Exportar Excel
-                        </button>
-                    </div>
-                </div>
-
-                <div className="h-6 md:h-8"></div>
-
-                {/* Stats Cards */}
-                <div className="w-[85%] md:w-full max-w-6xl mx-auto mb-12">
-                    <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-7 gap-6">
-                        <div className="bg-graphite text-white rounded-2xl shadow-lg border-2 border-black relative overflow-hidden group text-center flex flex-col items-center justify-center w-full py-4 md:py-5 px-2 min-h-[90px] md:min-h-[110px]">
-                            <h3 className="text-[10px] md:text-[8px] font-black uppercase tracking-[0.2em] text-gray-400 mb-2 md:mb-1 leading-tight">Total Global</h3>
-                            <p className="text-xl md:text-lg font-black leading-none">{formatCurrency(stats.total)}</p>
-                            <p className="hidden md:block text-[7px] text-gray-400 mt-1 font-bold uppercase">POS + Pedidos</p>
-                        </div>
-
-                        <div className="bg-pink-hot text-white rounded-2xl shadow-lg border-4 border-black relative overflow-hidden group text-center flex flex-col items-center justify-center w-full py-4 md:py-5 px-2 min-h-[90px] md:min-h-[110px]">
-                            <h3 className="text-[10px] md:text-[8px] font-black uppercase tracking-[0.2em] text-pink-100 mb-2 md:mb-1 leading-tight">Telas / Lanas</h3>
-                            <p className="text-xl md:text-lg font-black leading-none">{formatCurrency(stats.telas)}</p>
-                        </div>
-
-                        <div className="bg-purple-600 text-white rounded-2xl shadow-lg border-4 border-black relative overflow-hidden group text-center flex flex-col items-center justify-center w-full py-4 md:py-5 px-2 min-h-[90px] md:min-h-[110px]">
-                            <h3 className="text-[10px] md:text-[8px] font-black uppercase tracking-[0.2em] text-purple-100 mb-2 md:mb-1 leading-tight">Perfumería</h3>
-                            <p className="text-xl md:text-lg font-black leading-none">{formatCurrency(stats.perfumeria)}</p>
-                        </div>
-
-                        <div className="bg-violet-500 text-white rounded-2xl shadow-lg border-4 border-black relative overflow-hidden group text-center flex flex-col items-center justify-center w-full py-4 md:py-5 px-2 min-h-[90px] md:min-h-[110px]">
-                            <h3 className="text-[10px] md:text-[8px] font-black uppercase tracking-[0.2em] text-violet-100 mb-2 md:mb-1 leading-tight">Catálogo</h3>
-                            <p className="text-xl md:text-lg font-black leading-none">{formatCurrency(stats.perfumeria_catalogo || 0)}</p>
-                        </div>
-
-                        <div className="bg-indigo-500 text-white rounded-2xl shadow-lg border-4 border-black relative overflow-hidden group text-center flex flex-col items-center justify-center w-full py-4 md:py-5 px-2 min-h-[90px] md:min-h-[110px]">
-                            <h3 className="text-[10px] md:text-[8px] font-black uppercase tracking-[0.2em] text-indigo-100 mb-2 md:mb-1 leading-tight">Diseñador</h3>
-                            <p className="text-xl md:text-lg font-black leading-none">{formatCurrency(stats.perfumeria_disenador || 0)}</p>
-                        </div>
-
-                        <div className="bg-blue-600 text-white rounded-2xl shadow-lg border-4 border-black relative overflow-hidden group text-center flex flex-col items-center justify-center w-full py-4 md:py-5 px-2 min-h-[90px] md:min-h-[110px]">
-                            <h3 className="text-[10px] md:text-[8px] font-black uppercase tracking-[0.2em] text-blue-100 mb-2 md:mb-1 leading-tight">Web</h3>
-                            <p className="text-xl md:text-lg font-black leading-none">{formatCurrency(stats.orders_total || 0)}</p>
-                        </div>
-
-                        <div className="bg-orange-500 text-white rounded-2xl shadow-lg border-4 border-black relative overflow-hidden group text-center flex flex-col items-center justify-center w-full py-4 md:py-5 px-2 min-h-[90px] md:min-h-[110px]">
-                            <h3 className="text-[10px] md:text-[8px] font-black uppercase tracking-[0.2em] text-orange-100 mb-2 md:mb-1 leading-tight">Contratos</h3>
-                            <p className="text-xl md:text-lg font-black leading-none">{formatCurrency(stats.contracts_total || 0)}</p>
+                        
+                        <div className="flex flex-col md:flex-row gap-4">
+                            <button
+                                onClick={() => setShowTotalsModal(true)}
+                                className="stats-btn"
+                            >
+                                <svg className="stats-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                                </svg>
+                                Ver Estadísticas
+                            </button>
+                            
+                            <button
+                                onClick={exportExcel}
+                                className="export-btn"
+                            >
+                                Exportar Excel
+                            </button>
                         </div>
                     </div>
                 </div>
-                <div className="h-12"></div> {/* Unified spacing for mobile and desktop */}
+
+                <div className="spacer-2"></div>
+                
+                {/* Subtítulo */}
+                <div className="subtitle">
+                    <h3>Historial de Facturas y Ventas</h3>
+                </div>
+
+                <div className="spacer-4"></div>
+
+                {/* Controles de selección masiva */}
+                <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-6 px-4">
+                    <div className="flex items-center gap-4">
+                        <input
+                            type="checkbox"
+                            id="selectAll"
+                            checked={selectedSales.size === sales.length && sales.length > 0}
+                            onChange={(e) => e.target.checked ? selectAllSales() : clearSelection()}
+                            className="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                        />
+                        <label htmlFor="selectAll" className="text-sm font-medium text-gray-700">
+                            Seleccionar todo ({selectedSales.size} de {sales.length})
+                        </label>
+                    </div>
+                    
+                    {selectedSales.size > 0 && (
+                        <div className="flex items-center gap-3">
+                            <button
+                                onClick={clearSelection}
+                                className="px-4 py-2 text-sm font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                            >
+                                Limpiar selección
+                            </button>
+                            <button
+                                onClick={() => setShowDeleteConfirm(true)}
+                                className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors flex items-center gap-2"
+                            >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                                Eliminar ({selectedSales.size})
+                            </button>
+                        </div>
+                    )}
+                </div>
+
+                <div className="spacer-2"></div>
 
                 {error && (
-                    <div className="w-full max-w-2xl mx-auto bg-red-pink/10 border-2 border-red-pink text-red-pink px-6 py-4 rounded-xl mb-8 font-bold text-center">
+                    <div className="error-message">
                         {error}
                     </div>
                 )}
 
                 {isLoading ? (
-                    <div className="text-center py-20">
-                        <div className="animate-spin w-12 h-12 border-4 border-graphite border-t-pink-hot rounded-full mx-auto mb-4"></div>
+                    <div className="loading">
+                        <div className="loading-spinner"></div>
                     </div>
                 ) : (
                     <div className="w-[90%] md:w-full max-w-6xl mx-auto mb-12">
                         {/* Desktop Table View */}
-                        <div className="hidden lg:block bg-white rounded-2xl border-4 border-graphite shadow-[10px_10px_0px_0px_#333] overflow-hidden">
-                            <div className="overflow-x-auto">
-                                <table className="w-full border-collapse">
-                                    <thead className="bg-graphite text-white">
+                        <div className="desktop-table">
+                            <div className="table-container">
+                                <table className="sales-table">
+                                    <thead className="table-header">
                                         <tr>
-                                            <th className="px-6 py-5 text-left text-sm font-black uppercase tracking-widest">Fecha / ID</th>
-                                            <th className="px-6 py-5 text-center text-sm font-black uppercase tracking-widest">Vendedor</th>
-                                            <th className="px-4 py-5 text-center text-sm font-black uppercase tracking-widest">Método</th>
-                                            <th className="px-4 py-5 text-center text-sm font-black uppercase tracking-widest text-pink-200">Telas</th>
-                                            <th className="px-4 py-5 text-center text-sm font-black uppercase tracking-widest text-purple-200">Perfumería</th>
-                                            <th className="px-8 py-5 text-right text-sm font-black uppercase tracking-widest">Total</th>
-                                            <th className="px-6 py-5 text-center text-sm font-black uppercase tracking-widest">Acciones</th>
+                                            <th className="px-4 py-5 text-center">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={selectedSales.size === sales.length && sales.length > 0}
+                                                    onChange={(e) => e.target.checked ? selectAllSales() : clearSelection()}
+                                                    className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                                />
+                                            </th>
+                                            <th>Fecha / ID</th>
+                                            <th>Vendedor</th>
+                                            <th>Método</th>
+                                            <th>Telas</th>
+                                            <th>Perfumería</th>
+                                            <th>Total</th>
+                                            <th>Acciones</th>
                                         </tr>
                                     </thead>
-                                    <tbody className="divide-y-2 divide-gray-100">
-                                        {sales.map((sale) => (
-                                            <tr key={`${sale.type}-${sale.id}`} className="hover:bg-gray-50 transition-colors">
-                                                <td className="px-6 py-5">
-                                                    <div className="font-bold text-graphite text-base">{formatDate(sale.created_at)}</div>
-                                                    <div className="text-[10px] text-gray-400 font-black uppercase tracking-widest mt-0.5">
-                                                        {sale.type === 'pos' && `POS #${sale.id.toString().padStart(6, '0')}`}
-                                                        {sale.type === 'order' && `WEB #${sale.id.toString().padStart(6, '0')}`}
-                                                        {sale.type === 'contract_payment' && `ABONO #${sale.id.toString().padStart(6, '0')}`}
-                                                    </div>
-                                                </td>
-                                                <td className="px-6 py-5 font-bold text-gray-600 text-center text-sm">
+                                    <tbody className="table-body">
+                                        {sales.map((sale) => {
+                                            const saleKey = `${sale.type}-${sale.id}`;
+                                            const isSelected = selectedSales.has(saleKey);
+                                            return (
+                                                <tr key={saleKey} className={`table-row ${isSelected ? 'bg-blue-50' : ''}`}>
+                                                    <td className="table-cell text-center">
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={isSelected}
+                                                            onChange={() => toggleSaleSelection(saleKey)}
+                                                            className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                                        />
+                                                    </td>
+                                                    <td className="table-cell">
+                                                        <div className="sale-date">{formatDate(sale.created_at)}</div>
+                                                        <div className="sale-id">
+                                                            {sale.type === 'pos' && `POS #${sale.id.toString().padStart(6, '0')}`}
+                                                            {sale.type === 'order' && `WEB #${sale.id.toString().padStart(6, '0')}`}
+                                                            {sale.type === 'contract_payment' && `ABONO #${sale.id.toString().padStart(6, '0')}`}
+                                                        </div>
+                                                    </td>
+                                                <td className="table-cell">
                                                     {sale.type === 'order' ? `Cliente: ${sale.user?.name}` : (sale.user?.name || 'Sistema')}
                                                     {sale.type === 'contract_payment' && <div className="text-[10px] text-orange-500 font-bold uppercase mt-1">{sale.details}</div>}
                                                 </td>
-                                                <td className="px-4 py-5 text-center">
-                                                    <span className={`inline-block px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${sale.payment_method === 'web' ? 'bg-blue-100 text-blue-700' :
-                                                        sale.type === 'contract_payment' ? 'bg-orange-100 text-orange-700' :
-                                                            'bg-gray-100 text-gray-700'
+                                                <td className="table-cell">
+                                                    <span className={`payment-badge ${sale.payment_method === 'web' ? 'web' :
+                                                        sale.type === 'contract_payment' ? 'contract' :
+                                                            'default'
                                                         }`}>
                                                         {translatePaymentMethod(sale.payment_method)}
                                                     </span>
                                                 </td>
-                                                <td className="px-4 py-5 text-center">
+                                                <td className="table-cell">
                                                     {(sale.type === 'pos' || sale.type === 'order') ? (
-                                                        <span className="font-black text-lg text-pink-hot">{formatCurrency(sale.telas_total || 0)}</span>
+                                                        <span className="telas-amount">{formatCurrency(sale.telas_total || 0)}</span>
                                                     ) : (
                                                         <span className="text-gray-300">-</span>
                                                     )}
                                                 </td>
-                                                <td className="px-4 py-5 text-center">
+                                                <td className="table-cell">
                                                     {(sale.type === 'pos' || sale.type === 'order') ? (
                                                         <div className="flex flex-col">
-                                                            <span className="font-black text-lg text-purple-600">{formatCurrency(sale.perfumeria_total || 0)}</span>
+                                                            <span className="perfumeria-amount">{formatCurrency(sale.perfumeria_total || 0)}</span>
                                                             {(Number(sale.perfumeria_catalogo_total || 0) > 0 || Number(sale.perfumeria_disenador_total || 0) > 0) ? (
-                                                                <span className="text-[9px] text-gray-400 font-bold uppercase">
+                                                                <span className="perfumeria-details">
                                                                     Cat: {formatCurrency(sale.perfumeria_catalogo_total || 0)} / Dis: {formatCurrency(sale.perfumeria_disenador_total || 0)}
                                                                 </span>
                                                             ) : null}
@@ -408,129 +530,147 @@ export default function SalesRegistry() {
                                                         <span className="text-gray-300">-</span>
                                                     )}
                                                 </td>
-                                                <td className="px-8 py-5 text-right whitespace-nowrap">
-                                                    <span className="font-black text-xl text-graphite">{formatCurrency(sale.total)}</span>
+                                                <td className="table-cell">
+                                                    <span className="total-amount">{formatCurrency(sale.total)}</span>
                                                 </td>
-                                                <td className="px-6 py-5 text-center">
+                                                <td className="table-cell">
                                                     {(sale.type === 'pos' || sale.type === 'order') && (
                                                         <button
                                                             onClick={() => triggerPrint(sale)}
-                                                            className="p-3 bg-white border-2 border-graphite rounded-xl hover:bg-gray-50 text-graphite shadow-[3px_3px_0px_0px_#333] transition-all"
+                                                            className="print-btn"
                                                             title="Imprimir Factura"
                                                         >
-                                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <svg className="print-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
                                                             </svg>
                                                         </button>
                                                     )}
                                                 </td>
                                             </tr>
-                                        ))}
+                                            );
+                                        })}
                                     </tbody>
                                 </table>
                             </div>
                         </div>
 
                         {/* Mobile Card View */}
-                        <div className="lg:hidden w-full flex justify-center mt-8">
-                            <div className="w-full space-y-6 max-w-md px-2">
-                                {sales.map((sale) => (
-                                    <div key={`${sale.type}-${sale.id}`} className="bg-white rounded-2xl border-4 border-graphite shadow-[6px_6px_0px_0px_#333] p-5">
-                                        <div className="flex justify-between items-start mb-4">
-                                            <div>
-                                                <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">
-                                                    {sale.type === 'pos' && `POS #${sale.id.toString().padStart(6, '0')}`}
-                                                    {sale.type === 'order' && `WEB #${sale.id.toString().padStart(6, '0')}`}
-                                                    {sale.type === 'contract_payment' && `ABONO #${sale.id.toString().padStart(6, '0')}`}
+                        <div className="mobile-cards">
+                            <div className="mobile-cards-container">
+                                {sales.map((sale) => {
+                                    const saleKey = `${sale.type}-${sale.id}`;
+                                    const isSelected = selectedSales.has(saleKey);
+                                    return (
+                                        <div key={saleKey} className={`mobile-card ${isSelected ? 'ring-4 ring-blue-500 bg-blue-50' : ''}`}>
+                                            {/* Checkbox de selección */}
+                                            <div className="flex justify-between items-start mb-4">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={isSelected}
+                                                    onChange={() => toggleSaleSelection(saleKey)}
+                                                    className="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                                />
+                                                <div className="mobile-card-header">
+                                                    <div>
+                                                        <div className="mobile-card-id">
+                                                            {sale.type === 'pos' && `POS #${sale.id.toString().padStart(6, '0')}`}
+                                                            {sale.type === 'order' && `WEB #${sale.id.toString().padStart(6, '0')}`}
+                                                            {sale.type === 'contract_payment' && `ABONO #${sale.id.toString().padStart(6, '0')}`}
+                                                        </div>
+                                                        <div className="mobile-card-date">{formatDate(sale.created_at)}</div>
+                                                    </div>
+                                                    <span className={`mobile-payment-badge ${sale.payment_method === 'web' ? 'web' :
+                                                        sale.type === 'contract_payment' ? 'contract' :
+                                                            'default'
+                                                        }`}>
+                                                        {translatePaymentMethod(sale.payment_method)}
+                                                    </span>
                                                 </div>
-                                                <div className="font-black text-graphite text-lg leading-tight">{formatDate(sale.created_at)}</div>
                                             </div>
-                                            <span className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border-2 border-graphite shadow-[2px_2px_0px_0px_rgba(0,0,0,0.1)] ${sale.payment_method === 'web' ? 'bg-blue-100 text-blue-700 border-blue-200' :
-                                                sale.type === 'contract_payment' ? 'bg-orange-100 text-orange-700 border-orange-200' :
-                                                    'bg-white text-gray-600'
-                                                }`}>
-                                                {translatePaymentMethod(sale.payment_method)}
-                                            </span>
-                                        </div>
 
-                                        <div className="flex flex-col gap-3 mb-4">
-                                            <div className="flex items-center gap-2">
-                                                <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
-                                                    <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                                        <div className="mobile-seller-section">
+                                            <div className="mobile-seller-info">
+                                                <div className="mobile-seller-icon">
+                                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                                    </svg>
                                                 </div>
-                                                <div className="flex flex-col">
-                                                    <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Vendedor / Cliente</span>
-                                                    <span className="text-sm font-bold text-gray-700">{sale.type === 'order' ? `Cliente: ${sale.user?.name}` : (sale.user?.name || 'Sistema')}</span>
+                                                <div className="mobile-seller-details">
+                                                    <span className="mobile-seller-label">Vendedor / Cliente</span>
+                                                    <span className="mobile-seller-name">{sale.type === 'order' ? `Cliente: ${sale.user?.name}` : (sale.user?.name || 'Sistema')}</span>
                                                 </div>
                                             </div>
                                             {sale.type === 'contract_payment' && (
-                                                <div className="bg-orange-50 p-2 rounded-lg border-2 border-orange-100">
-                                                    <span className="text-[10px] font-bold text-orange-600 block mb-1">DETALLES ABONO</span>
-                                                    <span className="text-xs font-bold text-orange-700">{sale.details}</span>
+                                                <div className="contract-details">
+                                                    <span className="contract-details-title">DETALLES ABONO</span>
+                                                    <span className="contract-details-text">{sale.details}</span>
                                                 </div>
                                             )}
                                         </div>
 
-                                        <div className="grid grid-cols-2 gap-3 pt-4 border-t-2 border-dashed border-gray-100 mb-4">
+                                        <div className="mobile-breakdown">
                                             <div className="flex flex-col">
-                                                <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1">Desglose</span>
+                                                <span className="mobile-breakdown-title">Desglose</span>
                                                 {(sale.type === 'pos' || sale.type === 'order') ? (
-                                                    <div className="space-y-1">
-                                                        <div className="flex justify-between items-center text-xs">
-                                                            <span className="text-pink-500 font-bold">Telas:</span>
-                                                            <span className="font-black">{formatCurrency(sale.telas_total || 0)}</span>
+                                                    <div className="mobile-breakdown-items">
+                                                        <div className="breakdown-item">
+                                                            <span className="breakdown-label telas">Telas:</span>
+                                                            <span className="breakdown-value">{formatCurrency(sale.telas_total || 0)}</span>
                                                         </div>
-                                                        <div className="flex justify-between items-center text-xs">
-                                                            <span className="text-purple-500 font-bold">Perfumería:</span>
-                                                            <span className="font-black">{formatCurrency(sale.perfumeria_total || 0)}</span>
+                                                        <div className="breakdown-item">
+                                                            <span className="breakdown-label perfumeria">Perfumería:</span>
+                                                            <span className="breakdown-value">{formatCurrency(sale.perfumeria_total || 0)}</span>
                                                         </div>
                                                     </div>
                                                 ) : (
                                                     <span className="text-xs text-gray-300 italic font-bold">No aplica</span>
                                                 )}
                                             </div>
-                                            <div className="flex flex-col items-end justify-center">
-                                                <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1">Total Cobrado</span>
-                                                <span className="text-2xl font-black text-graphite">{formatCurrency(sale.total)}</span>
+                                            <div className="mobile-total-section">
+                                                <span className="mobile-total-label">Total Cobrado</span>
+                                                <span className="mobile-total-amount">{formatCurrency(sale.total)}</span>
                                             </div>
                                         </div>
 
                                         {(sale.type === 'pos' || sale.type === 'order') && (
                                             <button
                                                 onClick={() => triggerPrint(sale)}
-                                                className="w-full py-3 bg-graphite text-white font-black uppercase tracking-widest rounded-xl border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] hover:bg-gray-800 transition-all flex items-center justify-center gap-3"
+                                                className="mobile-print-btn"
                                             >
-                                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <svg className="mobile-print-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
                                                 </svg>
                                                 Imprimir Factura
                                             </button>
                                         )}
                                     </div>
-                                ))}
+                                    );
+                                })}
 
                                 {sales.length === 0 && (
-                                    <div className="bg-white rounded-2xl border-4 border-dashed border-gray-200 p-12 text-center w-full">
-                                        <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4 border-2 border-gray-100 text-gray-300">
-                                            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                                    <div className="no-sales-container">
+                                        <div className="no-sales-icon">
+                                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                            </svg>
                                         </div>
-                                        <h3 className="text-xl font-bold text-gray-400">No hay ventas registradas</h3>
-                                        <p className="text-sm text-gray-400 mt-1">Intenta con otro filtro de fecha.</p>
+                                        <h3 className="no-sales-title">No hay ventas registradas</h3>
+                                        <p className="no-sales-text">Intenta con otro filtro de fecha.</p>
                                     </div>
                                 )}
                             </div>
                         </div>
                     </div>
                 )}
-                <div className="h-12 md:hidden"></div>
+                <div className="spacer-12 md:hidden"></div>
 
                 {/* Integrated Footer Area */}
-                <div className="pt-12 md:pt-96 pb-24 md:pb-48 text-center space-y-8 md:space-y-12 w-full">
-                    <div className="flex justify-center gap-4 opacity-10">
-                        <div className="w-12 h-1.5 bg-pink-hot rounded-full"></div>
-                        <div className="w-12 h-1.5 bg-teal rounded-full"></div>
+                <div className="footer-section">
+                    <div className="footer-section-content">
+                        <div className="footer-bar pink"></div>
+                        <div className="footer-bar teal"></div>
                     </div>
-                    <p className="text-gray-400 text-[10px] sm:text-[14px] font-black uppercase tracking-[0.4em] md:tracking-[0.8em] max-w-5xl mx-auto leading-relaxed opacity-40 italic">
+                    <p className="footer-text">
                         SISTEMA CENTRAL DE GESTIÓN VISUAL • VERSIÓN 2.5
                     </p>
                 </div>
@@ -605,7 +745,142 @@ export default function SalesRegistry() {
                         )}
                     </div>
                 </div>
+
+                {/* Modal de Valores Totales */}
+                {showTotalsModal && (
+                    <div className="totals-modal-overlay" onClick={() => setShowTotalsModal(false)}>
+                        <div className="totals-modal" onClick={(e) => e.stopPropagation()}>
+                            <div className="totals-modal-header">
+                                <h3 className="totals-modal-title">Valores Totales Detallados</h3>
+                                <button 
+                                    className="totals-modal-close"
+                                    onClick={() => setShowTotalsModal(false)}
+                                >
+                                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+                            <div className="totals-modal-body">
+                                <div className="totals-grid">
+                                    <div className="total-card total">
+                                        <h4 className="total-title">Total Global</h4>
+                                        <p className="total-value">{formatCurrency(stats.total)}</p>
+                                        <p className="total-description">Todas las ventas</p>
+                                    </div>
+
+                                    <div className="total-card telas">
+                                        <h4 className="total-title">Telas / Lanas</h4>
+                                        <p className="total-value">{formatCurrency(stats.telas)}</p>
+                                        <p className="total-description">Ventas locales POS</p>
+                                    </div>
+
+                                    <div className="total-card perfumeria">
+                                        <h4 className="total-title">Perfumería</h4>
+                                        <p className="total-value">{formatCurrency(stats.perfumeria)}</p>
+                                        <p className="total-description">Ventas de fragancias</p>
+                                    </div>
+
+                                    <div className="total-card catalogo">
+                                        <h4 className="total-title">Catálogo</h4>
+                                        <p className="total-value">{formatCurrency(stats.perfumeria_catalogo || 0)}</p>
+                                        <p className="total-description">Ventas por catálogo</p>
+                                    </div>
+
+                                    <div className="total-card disenador">
+                                        <h4 className="total-title">Diseñador</h4>
+                                        <p className="total-value">{formatCurrency(stats.perfumeria_disenador || 0)}</p>
+                                        <p className="total-description">Ventas diseñador</p>
+                                    </div>
+
+                                    <div className="total-card web">
+                                        <h4 className="total-title">Pedidos Web</h4>
+                                        <p className="total-value">{formatCurrency(stats.orders_total || 0)}</p>
+                                        <p className="total-description">Ventas online</p>
+                                    </div>
+
+                                    <div className="total-card contratos">
+                                        <h4 className="total-title">Contratos</h4>
+                                        <p className="total-value">{formatCurrency(stats.contracts_total || 0)}</p>
+                                        <p className="total-description">Abonos a contratos</p>
+                                    </div>
+                                </div>
+
+                                <div className="totals-summary">
+                                    <h4 className="totals-summary-title">Resumen General</h4>
+                                    <div className="totals-summary-item">
+                                        <span className="summary-label">Ventas POS (Telas + Perfumería)</span>
+                                        <span className="summary-value">{formatCurrency(stats.telas + stats.perfumeria)}</span>
+                                    </div>
+                                    <div className="totals-summary-item">
+                                        <span className="summary-label">Ventas Online (Web)</span>
+                                        <span className="summary-value">{formatCurrency(stats.orders_total || 0)}</span>
+                                    </div>
+                                    <div className="totals-summary-item">
+                                        <span className="summary-label">Contratos y Abonos</span>
+                                        <span className="summary-value">{formatCurrency(stats.contracts_total || 0)}</span>
+                                    </div>
+                                    <div className="totals-summary-item">
+                                        <span className="summary-label">TOTAL GENERAL</span>
+                                        <span className="summary-value">{formatCurrency(stats.total)}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Modal de Confirmación de Eliminación */}
+                {showDeleteConfirm && (
+                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                        <div className="bg-white rounded-2xl border-4 border-graphite shadow-[12px_12px_0px_0px_#333] max-w-md w-full p-6">
+                            <div className="text-center mb-6">
+                                <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                                    </svg>
+                                </div>
+                                <h3 className="text-xl font-bold text-gray-900 mb-2">¿Confirmar Eliminación?</h3>
+                                <p className="text-gray-600">
+                                    Estás a punto de eliminar <span className="font-bold text-red-600">{selectedSales.size}</span> venta{selectedSales.size !== 1 ? 's' : ''}.
+                                    Esta acción no se puede deshacer.
+                                </p>
+                            </div>
+                            
+                            <div className="flex gap-3">
+                                <button
+                                    onClick={() => setShowDeleteConfirm(false)}
+                                    disabled={isDeleting}
+                                    className="flex-1 px-4 py-3 text-gray-700 bg-gray-100 rounded-xl font-bold hover:bg-gray-200 transition-colors disabled:opacity-50"
+                                >
+                                    Cancelar
+                                </button>
+                                <button
+                                    onClick={deleteSelectedSales}
+                                    disabled={isDeleting}
+                                    className="flex-1 px-4 py-3 text-white bg-red-600 rounded-xl font-bold hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                                >
+                                    {isDeleting ? (
+                                        <>
+                                            <svg className="animate-spin w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                            </svg>
+                                            Eliminando...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                            </svg>
+                                            Eliminar
+                                        </>
+                                    )}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
-        </AdminLayout >
+        </AdminLayout>
     );
 }

@@ -5,9 +5,12 @@ import { useAuth } from './AuthContext';
 interface Product {
     id: number;
     name: string;
-    price: string;
+    price: string | number | null;
     description: string;
     image: string | null;
+    base_price?: number;
+    markup?: number;
+    markup_type?: string;
 }
 
 interface CartItemVariant {
@@ -38,6 +41,7 @@ interface CartContextType {
     updateQuantity: (itemId: number, quantity: number) => Promise<void>;
     removeFromCart: (itemId: number) => Promise<void>;
     clearCart: () => Promise<void>;
+    clearCartWithMessage: () => Promise<void>;
     cartCount: number;
     cartTotal: number;
     fetchCart: () => Promise<void>;
@@ -131,16 +135,62 @@ export function CartProvider({ children }: { children: ReactNode }) {
             await api.delete('/cart');
             setCart(null); // Or fetch empty cart
             await fetchCart();
+            console.log('Cart cleared - please add items again to apply price fixes');
         } catch (error) {
             console.error('Error clearing cart:', error);
             throw error;
         }
     };
 
+    // Add function to clear cart and show message
+    const clearCartWithMessage = async () => {
+        if (!user) return;
+        if (confirm('El carrito contiene datos antiguos. ¿Deseas limpiarlo y agregar los productos nuevamente para aplicar las correcciones de precios?')) {
+            await clearCart();
+            alert('Carrito limpiado. Por favor agrega los productos nuevamente para ver los precios correctos.');
+        }
+    };
+
     const cartCount = cart?.items?.reduce((total, item) => total + item.quantity, 0) || 0;
 
     const cartTotal = cart?.items?.reduce((total, item) => {
-        const price = item.unit_price ? parseFloat(String(item.unit_price)) : parseFloat(item.product.price);
+        // Try unit_price first, then product price, then calculate from base_price + markup
+        let price = item.unit_price ? parseFloat(String(item.unit_price)) : 0;
+        
+        // If unit_price is available, use it (this should be the correct price from backend)
+        if (price && price > 0) {
+            // Using unit_price from CartItem - this is the correct price!
+        } else if (item.product.price) {
+            price = parseFloat(String(item.product.price));
+            // Using product.price
+        }
+        
+        // If still no price, try to calculate from base_price + markup
+        if (!price && item.product.base_price) {
+            const basePrice = parseFloat(String(item.product.base_price)) || 0;
+            const markup = parseFloat(String(item.product.markup)) || 0;
+            const markupType = item.product.markup_type || 'percentage';
+            
+            if (markupType === 'percentage') {
+                price = basePrice * (1 + markup / 100);
+            } else {
+                price = basePrice + markup;
+            }
+            
+            // Add priceDelta from variants if available
+            if (item.variants && Array.isArray(item.variants)) {
+                const priceDelta = item.variants.reduce((total: number, variant: any) => {
+                    return total + (parseFloat(String(variant.priceDelta)) || 0);
+                }, 0);
+                price += priceDelta;
+            }
+        }
+        
+        // If still 0, the product has no pricing data configured
+        if (!price) {
+            price = 0;
+        }
+        
         return total + (item.quantity * price);
     }, 0) || 0;
 
@@ -152,6 +202,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
             updateQuantity,
             removeFromCart,
             clearCart,
+            clearCartWithMessage,
             cartCount,
             cartTotal,
             fetchCart
